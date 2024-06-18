@@ -45,8 +45,17 @@ namespace LoopBot.Services
         {
             var request = new RestRequest($"/api/v3/user/nft/orderFee?accountId={accountId}&nftTokenAddress={tokenAddress}&quoteToken=1&quoteAmount={quoteAmount}");
             request.AddHeader("x-api-key", apiKey);
-            var response = await _client.GetAsync<NftOrderFee>(request);
-            return response;
+            try
+            {
+                var response = await _client.GetAsync<NftOrderFee>(request);
+                return response;
+            }
+            catch (HttpRequestException httpException)
+            {
+                Console.WriteLine(httpException.Message);
+                return null;
+            }
+
         }
 
         public async Task<string> SubmitNftTradeValidateOrder(string apiKey, NftOrder nftOrder, string eddsaSignature)
