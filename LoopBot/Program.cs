@@ -22,7 +22,13 @@ IConfiguration config = new ConfigurationBuilder()
 Settings settings = config.GetRequiredSection("Settings").Get<Settings>();
 
 //The NFT to buy
-var nftFullId = "0x16e0eae0799de387be4917d05e8eb00e0a1ccb43-0-0xde2404647c15e8bfb6656e3000bdb4b54cc5a3fa-0xb128327dd0a36ebc1494ffb3b0ea7ea8cfecb01cc6b422ce25330b6dd19f486b-10";
+var nftFullId = ""; //test with 0x16e0eae0799de387be4917d05e8eb00e0a1ccb43-0-0xde2404647c15e8bfb6656e3000bdb4b54cc5a3fa-0xb128327dd0a36ebc1494ffb3b0ea7ea8cfecb01cc6b422ce25330b6dd19f486b-10;
+while(string.IsNullOrEmpty(nftFullId))
+{
+    Console.WriteLine("Enter the full nft id to buy: ");
+    nftFullId = Console.ReadLine().Trim();
+}
+
 
 //Setup
 var loopexchangeLoginMessage = "Welcome to LoopExchange!\n\nClick to sign in and agree to LoopExchange Terms of Service and Privacy policy.\n\nThis request will not trigger a blockchain transaction or cost any gas fees.";
