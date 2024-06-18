@@ -10,7 +10,7 @@ You will need to create an appsettings.json file in the directory with the setti
     "LoopringPrivateKey": "0xbalahha", //Your Loopring private key
     "LoopringAddress": "0xblahaha", //Your loopring address
     "LoopringAccountId": 40940, //Your loopring account id
-    "L1PrivateKey" //Your L1 Private Key
+    "L1PrivateKey": "assdsxa", //Your L1 Private Key
     "Exchange": "0x0BABA1Ad5bE3a5C0a66E7ac838a129Bf948f1eA4" //Loopring Exchange address
   }
 }
