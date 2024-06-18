@@ -17,5 +17,9 @@ You will need to create an appsettings.json file in the directory with the setti
 ```
 
 ## TO DO
+Make user friendly
+
 Ability to watch collection listings
+
 Ability to set a price point to buy an NFT at
+
