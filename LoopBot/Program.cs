@@ -32,7 +32,7 @@ var loginSignedMessage = signer.EncodeUTF8AndSign(loopexchangeLoginMessage, l1Pr
 var loopExchangeApiService = new LoopExchangeApiService();
 Console.WriteLine("Logging in to LoopExchange...");
 var loopExchangeToken = await loopExchangeApiService.LoginAsync(settings.LoopringAccountId, settings.LoopringAddress, loginSignedMessage);
-if(loopExchangeToken.AccessToken.Length > 0)
+if(loopExchangeToken != null && loopExchangeToken.AccessToken.Length > 0)
 {
     Console.WriteLine("Login to LoopExchange successful...");
 }
