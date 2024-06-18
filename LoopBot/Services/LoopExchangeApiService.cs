@@ -1,4 +1,5 @@
-﻿using Nethereum.JsonRpc.Client;
+﻿using LoopBot.Models;
+using Nethereum.JsonRpc.Client;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -6,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LoopTradeSharp
+namespace LoopBot.Services
 {
-    public class LoopExchangeApiService: IDisposable
+    public class LoopExchangeApiService : IDisposable
     {
         const string _baseUrl = "https://api.loopexchange.art";
         readonly RestClient _client;
@@ -24,9 +25,9 @@ namespace LoopTradeSharp
             var request = new RestRequest("/web-v1/account/login");
             request.AddJsonBody(new
             {
-                address = address,
-                signature = signature,
-                accountId = accountId,
+                address,
+                signature,
+                accountId,
                 isCounterfactual = false,
                 chainID = 1
             });
@@ -35,7 +36,7 @@ namespace LoopTradeSharp
                 var response = await _client.PostAsync<BearerToken>(request);
                 return response;
             }
-            catch  (HttpRequestException ex)
+            catch (HttpRequestException ex)
             {
                 Console.WriteLine(ex.Message);
                 return null;
@@ -46,7 +47,7 @@ namespace LoopTradeSharp
         public async Task<TakerListingDetails> GetTakerListingDetailsAsync(string id)
         {
             var request = new RestRequest($"/web-v1/taker/{id}");
-         
+
             try
             {
                 var response = await _client.GetAsync<TakerListingDetails>(request);
@@ -63,7 +64,7 @@ namespace LoopTradeSharp
         public async Task<TakerFee> GetTakerFeesAsync(string id, int accountId, string nftTokenAddress, int maxFeeBips, string sellTokenAmount)
         {
             var request = new RestRequest($"/web-v1/taker/{id}/calculatefees?chainId=1&accountId={accountId}&nftTokenAddress={nftTokenAddress}&feeTokenId=1&maxFeeBips={maxFeeBips}&sellTokenAmount={sellTokenAmount}");
-            
+
             try
             {
                 var response = await _client.GetAsync<TakerFee>(request);

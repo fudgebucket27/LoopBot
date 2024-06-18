@@ -1,4 +1,5 @@
-﻿using Nethereum.JsonRpc.Client;
+﻿using LoopBot.Models;
+using Nethereum.JsonRpc.Client;
 using Nethereum.Signer;
 using Newtonsoft.Json;
 using RestSharp;
@@ -8,9 +9,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LoopTradeSharp
+namespace LoopBot.Services
 {
-    public class LoopExchangeWebApiService: IDisposable
+    public class LoopExchangeWebApiService : IDisposable
     {
         const string _baseUrl = "https://web-api.loopexchange.art";
         readonly RestClient _client;
@@ -85,7 +86,7 @@ namespace LoopTradeSharp
                 buyToken = new
                 {
                     tokenId = buyTokenId,
-                    nftData = nftData,
+                    nftData,
                     amount = buyTokenAmount
                 },
                 allOrNone,

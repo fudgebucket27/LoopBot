@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LoopTradeSharp
+namespace LoopBot.Models
 {
     public class StorageId
     {

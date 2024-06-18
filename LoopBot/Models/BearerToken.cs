@@ -6,11 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LoopTradeSharp
+namespace LoopBot.Models
 {
     public class BearerToken
     {
         [JsonProperty("accessToken")]
-        public string AccessToken {  get; set; }
+        public string AccessToken { get; set; }
     }
 }

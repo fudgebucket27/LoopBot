@@ -1,4 +1,5 @@
 ﻿using JsonFlatten;
+using LoopBot.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
@@ -8,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LoopTradeSharp
+namespace LoopBot.Services
 {
     public class LoopringApiService : IDisposable
     {
@@ -48,7 +49,7 @@ namespace LoopTradeSharp
             return response;
         }
 
-        public async Task<string> SubmitNftTradeValidateOrder(string apiKey,NftOrder nftOrder,string eddsaSignature)
+        public async Task<string> SubmitNftTradeValidateOrder(string apiKey, NftOrder nftOrder, string eddsaSignature)
         {
             var request = new RestRequest("api/v3/nft/validateOrder");
             request.AddHeader("x-api-key", apiKey);

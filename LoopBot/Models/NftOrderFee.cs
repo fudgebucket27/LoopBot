@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LoopTradeSharp
+namespace LoopBot.Models
 {
     public class NftOrderFee
     {
@@ -15,7 +15,7 @@ namespace LoopTradeSharp
         public string GasPrice { get; set; }
     }
 
-    
+
     public class FeeRate
     {
         [JsonProperty("nftTokenAddress")]

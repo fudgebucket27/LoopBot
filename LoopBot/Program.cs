@@ -1,6 +1,7 @@
 ﻿
 using JsonFlatten;
-using LoopTradeSharp;
+using LoopBot.Helpers;
+using LoopBot.Models;
 using Microsoft.Extensions.Configuration;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.RLP;
@@ -10,6 +11,7 @@ using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Crypto.Tls;
 using PoseidonSharp;
 using System.Numerics;
+using LoopBot.Services;
 using System.Text;
 
 //Settings file

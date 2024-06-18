@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace LoopTradeSharp
+namespace LoopBot.Helpers
 {
     public static class Utils
     {

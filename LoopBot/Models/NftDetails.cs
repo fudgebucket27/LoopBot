@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace LoopTradeSharp
+namespace LoopBot.Models
 {
     public class NftDetails
     {
