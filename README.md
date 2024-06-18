@@ -1,7 +1,7 @@
 # LoopBot
 A simple demo bot that will buy NFTs from LoopExchange.
 
-You will need to create an appsettings.json file in the directory with the setting "Copy to Output Directory" set to "Copy Always" like below. DO NOT SHARE ANY OF YOUR KEYS WITH ANYONE!
+You will need to create an appsettings.json file in the LoopBot directory with the setting "Copy to Output Directory" set to "Copy Always" like below. DO NOT SHARE ANY OF YOUR KEYS WITH ANYONE!
 ```json
 {
 
