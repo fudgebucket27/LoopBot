@@ -28,7 +28,17 @@ var l1PrivateKey = new EthECKey(settings.L1PrivateKey);
 var signer = new EthereumMessageSigner();
 var loginSignedMessage = signer.EncodeUTF8AndSign(loopexchangeLoginMessage, l1PrivateKey);
 var loopExchangeApiService = new LoopExchangeApiService();
+Console.WriteLine("Logging in to LoopExchange...");
 var loopExchangeToken = await loopExchangeApiService.LoginAsync(settings.LoopringAccountId, settings.LoopringAddress, loginSignedMessage);
+if(loopExchangeToken.AccessToken.Length > 0)
+{
+    Console.WriteLine("Login to LoopExchange successful...");
+}
+else
+{
+    Console.WriteLine("Login to LoopExchange unsuccessful...Terminating bot...");
+    System.Environment.Exit(0);
+}
 var loopExchangeWebApiService = new LoopExchangeWebApiService(loopExchangeToken.AccessToken);
 var loopringApiService = new LoopringApiService();
 
