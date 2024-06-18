@@ -12,10 +12,12 @@ namespace LoopBot.Helpers
         {
             int selectedIndex = 0;
             ConsoleKey key;
+
+            Console.Clear();
             Console.WriteLine(message);
+
             do
             {
-                Console.Clear();
                 DisplayOptions(options, selectedIndex);
 
                 key = Console.ReadKey(true).Key;
@@ -40,6 +42,8 @@ namespace LoopBot.Helpers
 
         private static void DisplayOptions(string[] options, int selectedIndex)
         {
+            Console.SetCursorPosition(0, 1);
+
             for (int i = 0; i < options.Length; i++)
             {
                 if (i == selectedIndex)

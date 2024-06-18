@@ -16,14 +16,14 @@ using System.Text;
 
 var settings = SettingsHelper.GetSettings();
 
-var selectedMode = OptionsHelper.Choose("Welcome to LoopBot! Choose an option below to begin. Use arrows then press enter to select.", 
+var selectedMode = OptionsHelper.Choose("Welcome to LoopBot! Choose an option below to begin. Use arrow keys then press enter to select the mode.", 
                                         new string[] { "Monitor collection", "Monitor listing" });
 
 //The NFT to buy
 var nftFullId = ""; //test with 0x16e0eae0799de387be4917d05e8eb00e0a1ccb43-0-0xde2404647c15e8bfb6656e3000bdb4b54cc5a3fa-0xb128327dd0a36ebc1494ffb3b0ea7ea8cfecb01cc6b422ce25330b6dd19f486b-10;
 while(string.IsNullOrEmpty(nftFullId) || nftFullId.Split('-').Length != 5)
 {
-    Console.WriteLine("Enter the full nft id to buy: ");
+    Console.WriteLine("Enter the full nft id to buy:");
     nftFullId = Console.ReadLine().Trim();
     if(nftFullId.Split('-').Length != 5)
     {
