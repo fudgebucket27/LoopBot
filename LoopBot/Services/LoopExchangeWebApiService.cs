@@ -55,13 +55,12 @@ namespace LoopBot.Services
 
         }
 
-        public async Task<object> SubmitTradeAsync(string listingId, NftOrder order, string takerOrderEddsaSignature, string signature)
+        public async Task<object> SubmitTradeAsync(int accountId, string listingId, NftOrder order, string takerOrderEddsaSignature, string signature)
         {
             var request = new RestRequest($"/taker/take-listing/{listingId}");
 
             var chainID = 1;
             var exchange = "0x0BABA1Ad5bE3a5C0a66E7ac838a129Bf948f1eA4";
-            var accountId = 40940;
             var storageId = order.storageId;
             var sellTokenId = 1;
             var sellTokenAmount = order.sellToken.amount;

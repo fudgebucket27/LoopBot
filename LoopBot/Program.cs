@@ -114,7 +114,7 @@ var signedMessage = signer.EncodeUTF8AndSign(message, l1PrivateKey);
 
 //Buy from LoopExchange
 Console.WriteLine("Buying NFT from LoopExchange...");
-var submitTrade = await loopExchangeWebApiService.SubmitTradeAsync(nftListingDetails.Id, nftTakerOrder, takerEddsaSignature, signedMessage);
+var submitTrade = await loopExchangeWebApiService.SubmitTradeAsync(settings.LoopringAccountId, nftListingDetails.Id, nftTakerOrder, takerEddsaSignature, signedMessage);
 if(submitTrade != null && submitTrade.ToString() == "{}")
 {
     Console.WriteLine("Bought NFT successfully...");
