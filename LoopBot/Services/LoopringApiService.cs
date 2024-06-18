@@ -17,15 +17,15 @@ namespace LoopBot.Services
 
         readonly RestClient _client;
 
-        public LoopringApiService()
+        public LoopringApiService(string apiKey)
         {
             _client = new RestClient(_baseUrl);
+            _client.AddDefaultHeader("x-api-key", apiKey);
         }
 
-        public async Task<StorageId> GetNextStorageId(string apiKey, int accountId, int sellTokenId)
+        public async Task<StorageId> GetNextStorageId(int accountId, int sellTokenId)
         {
             var request = new RestRequest("api/v3/storageId");
-            request.AddHeader("x-api-key", apiKey);
             request.AddParameter("accountId", accountId);
             request.AddParameter("sellTokenId", sellTokenId);
             try
@@ -41,10 +41,9 @@ namespace LoopBot.Services
             }
         }
 
-        public async Task<NftOrderFee> GetOrderFee(string apiKey, int accountId, string tokenAddress, string quoteAmount)
+        public async Task<NftOrderFee> GetOrderFee(int accountId, string tokenAddress, string quoteAmount)
         {
             var request = new RestRequest($"/api/v3/user/nft/orderFee?accountId={accountId}&nftTokenAddress={tokenAddress}&quoteToken=1&quoteAmount={quoteAmount}");
-            request.AddHeader("x-api-key", apiKey);
             try
             {
                 var response = await _client.GetAsync<NftOrderFee>(request);
@@ -58,10 +57,9 @@ namespace LoopBot.Services
 
         }
 
-        public async Task<string> SubmitNftTradeValidateOrder(string apiKey, NftOrder nftOrder, string eddsaSignature)
+        public async Task<string> SubmitNftTradeValidateOrder(NftOrder nftOrder, string eddsaSignature)
         {
             var request = new RestRequest("api/v3/nft/validateOrder");
-            request.AddHeader("x-api-key", apiKey);
             request.AlwaysMultipartFormData = true;
             request.AddParameter("exchange", nftOrder.exchange);
             request.AddParameter("accountId", nftOrder.accountId);
@@ -90,10 +88,9 @@ namespace LoopBot.Services
             }
         }
 
-        public async Task<string> SubmitNftTrade(string apiKey, NftTrade nftTrade, string apiSig)
+        public async Task<string> SubmitNftTrade(NftTrade nftTrade, string apiSig)
         {
             var request = new RestRequest("/api/v3/nft/trade", Method.Post);
-            request.AddHeader("x-api-key", apiKey);
             request.AddHeader("x-api-sig", apiSig);
             request.AddHeader("Accept", "application/json");
             var jObject = JObject.Parse(JsonConvert.SerializeObject(nftTrade));
