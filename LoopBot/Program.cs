@@ -14,15 +14,10 @@ using System.Numerics;
 using LoopBot.Services;
 using System.Text;
 
-//Settings file
-IConfiguration config = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.json")
-    .AddEnvironmentVariables()
-    .Build();
-Settings settings = config.GetRequiredSection("Settings").Get<Settings>();
+var settings = SettingsHelper.GetSettings();
 
-string[] optionModes = { "Monitor collection", "Monitor listing" };
-var selectedMode = OptionsHelper.Choose(optionModes);
+var selectedMode = OptionsHelper.Choose("Welcome to LoopBot! Choose an option below to begin. Use arrows then press enter to select.", 
+                                        new string[] { "Monitor collection", "Monitor listing" });
 
 //The NFT to buy
 var nftFullId = ""; //test with 0x16e0eae0799de387be4917d05e8eb00e0a1ccb43-0-0xde2404647c15e8bfb6656e3000bdb4b54cc5a3fa-0xb128327dd0a36ebc1494ffb3b0ea7ea8cfecb01cc6b422ce25330b6dd19f486b-10;

@@ -60,7 +60,7 @@ namespace LoopBot.Services
             var request = new RestRequest($"/taker/take-listing/{listingId}");
 
             var chainID = 1;
-            var exchange = "0x0BABA1Ad5bE3a5C0a66E7ac838a129Bf948f1eA4";
+            var exchange = order.exchange;
             var storageId = order.storageId;
             var sellTokenId = 1;
             var sellTokenAmount = order.sellToken.amount;

@@ -8,11 +8,11 @@ namespace LoopBot.Helpers
 {
     public static class OptionsHelper
     {
-        public static int Choose(string[] options)
+        public static int Choose(string message, string[] options)
         {
             int selectedIndex = 0;
             ConsoleKey key;
-            Console.WriteLine("Welcome to LoopBot! Choose an option below to begin. Use arrows then press enter to select.");
+            Console.WriteLine(message);
             do
             {
                 Console.Clear();
