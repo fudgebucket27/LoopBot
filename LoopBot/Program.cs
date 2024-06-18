@@ -48,6 +48,11 @@ var loopringApiService = new LoopringApiService();
 Console.WriteLine($"Getting NFT details from LoopExchange...");
 var nftDetails = await loopExchangeWebApiService.GetNftDetailsAsync(nftFullId);
 var nftListingDetails = await loopExchangeWebApiService.GetNftListingDetailsAsync(nftFullId);
+if(nftListingDetails.Id == null)
+{
+    Console.WriteLine("Listing not found...Terminating bot...");
+    System.Environment.Exit(0);
+}
 var nftTakerListingDetails = await loopExchangeApiService.GetTakerListingDetailsAsync(nftListingDetails.Id);
 var orderFee = await loopringApiService.GetOrderFee(settings.LoopringApiKey, settings.LoopringAccountId, nftDetails.TokenAddress, nftTakerListingDetails.Erc20TokenAmount);
 var takerOrderFee = await loopExchangeApiService.GetTakerFeesAsync(nftListingDetails.Id, settings.LoopringAccountId, nftDetails.TokenAddress, orderFee.FeeRate.Rate, nftTakerListingDetails.Erc20TokenAmount);
