@@ -37,7 +37,9 @@ Keep your appsettings.json file private!Do not share any of the keys or the file
 # Building from source
 This is a .NET application so you will need an IDE like Visual Studio / Visual Studio Code to compile it. You will also need .NET 6.
 
-You will need to create an appsettings.json file in the LoopBot directory with the setting "Copy to Output Directory" set to "Copy Always" like below. 
+You will need to create an appsettings.json file in the LoopBot directory with the setting "Copy to Output Directory" set to "Copy Always" like below.
+
+Make sure the appsettings.json is not included in your source files, though the current .gitignore should have this set already. 
 
 DO NOT SHARE ANY OF YOUR KEYS OR THE FILE WITH ANYONE!
 ```json
