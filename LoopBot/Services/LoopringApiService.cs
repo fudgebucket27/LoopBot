@@ -23,41 +23,39 @@ namespace LoopBot.Services
             _client.AddDefaultHeader("x-api-key", apiKey);
         }
 
-        public async Task<StorageId> GetNextStorageId(int accountId, int sellTokenId)
+        public async Task<StorageId?> GetNextStorageId(int accountId, int sellTokenId)
         {
             var request = new RestRequest("api/v3/storageId");
             request.AddParameter("accountId", accountId);
             request.AddParameter("sellTokenId", sellTokenId);
-            try
+
+            var response = await _client.ExecuteGetAsync<StorageId>(request);
+            if (response.IsSuccessful)
             {
-                var response = await _client.GetAsync(request);
-                var data = JsonConvert.DeserializeObject<StorageId>(response.Content!);
-                return data;
+                return response.Data;
             }
-            catch (HttpRequestException httpException)
+            else
             {
-                Console.WriteLine($"Error getting storage id: {httpException.Message}");
-                return null;
+                throw new Exception($"Error getting storage id from Loopring, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
             }
         }
 
-        public async Task<NftOrderFee> GetOrderFee(int accountId, string tokenAddress, string quoteAmount)
+        public async Task<NftOrderFee?> GetOrderFee(int accountId, string tokenAddress, string quoteAmount)
         {
             var request = new RestRequest($"/api/v3/user/nft/orderFee?accountId={accountId}&nftTokenAddress={tokenAddress}&quoteToken=1&quoteAmount={quoteAmount}");
-            try
-            {
-                var response = await _client.GetAsync<NftOrderFee>(request);
-                return response;
-            }
-            catch (HttpRequestException httpException)
-            {
-                Console.WriteLine(httpException.Message);
-                return null;
-            }
 
+            var response = await _client.ExecuteGetAsync<NftOrderFee>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error getting order fee from Loopring, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
         }
 
-        public async Task<string> SubmitNftTradeValidateOrder(NftOrder nftOrder, string eddsaSignature)
+        public async Task<string?> SubmitNftTradeValidateOrder(NftOrder nftOrder, string eddsaSignature)
         {
             var request = new RestRequest("api/v3/nft/validateOrder");
             request.AlwaysMultipartFormData = true;
@@ -74,21 +72,18 @@ namespace LoopBot.Services
             request.AddParameter("validUntil", nftOrder.validUntil);
             request.AddParameter("maxFeeBips", nftOrder.maxFeeBips);
             request.AddParameter("eddsaSignature", eddsaSignature);
-
-            try
+            var response = await _client.ExecutePostAsync<string>(request);
+            if (response.IsSuccessful)
             {
-                var response = await _client.ExecutePostAsync(request);
-                var data = response.Content;
-                return data;
+                return response.Data;
             }
-            catch (HttpRequestException httpException)
+            else
             {
-                Console.WriteLine($"Error validating nft order!: {httpException.Message}");
-                return null;
+                throw new Exception($"Error submitting NFT trade validation to Loopring, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
             }
         }
 
-        public async Task<string> SubmitNftTrade(NftTrade nftTrade, string apiSig)
+        public async Task<string?> SubmitNftTrade(NftTrade nftTrade, string apiSig)
         {
             var request = new RestRequest("/api/v3/nft/trade", Method.Post);
             request.AddHeader("x-api-sig", apiSig);
@@ -98,17 +93,15 @@ namespace LoopBot.Services
             var jObjectFlattenedString = JsonConvert.SerializeObject(jObjectFlattened);
             request.AddParameter("application/json", jObjectFlattenedString, ParameterType.RequestBody);
 
-            try
+
+            var response = await _client.ExecuteGetAsync<string>(request);
+            if (response.IsSuccessful)
             {
-                var response = await _client.ExecuteAsync(request);
-                var data = response.Content;
-                Console.WriteLine($"NFT Trade Response: {response.Content}");
-                return data;
+                return response.Data;
             }
-            catch (HttpRequestException httpException)
+            else
             {
-                Console.WriteLine($"Error with nft trade!: {httpException.Message}");
-                return null;
+                throw new Exception($"Error submitting NFT trade to Loopring, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
             }
         }
         public void Dispose()

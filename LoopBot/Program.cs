@@ -165,7 +165,7 @@ class Program
             //Get the NFT details
             var collectionListings = await loopExchangeWebApiService.GetCollectionListings(collectionId);
             var nftItem = collectionListings.Items
-                .Where(item => item.Token1PriceDecimal <= priceToBuyDecimal) //NFT has to be under or equal to the price limit
+                .Where(item => item.Token1PriceDecimal > 0 && item.Token1PriceDecimal <= priceToBuyDecimal)
                 .FirstOrDefault();
             var nftFullId = nftItem != null ? nftItem.NftUrlId : "";
             if (!string.IsNullOrEmpty(nftFullId))
@@ -202,6 +202,7 @@ class Program
         }
         catch (Exception ex)
         {
+            //Console.WriteLine($"Something went wrong: {ex.Message}");
             return false;
         }
         return false;
@@ -251,6 +252,7 @@ class Program
         }
         catch (Exception ex)
         {
+            //Console.WriteLine($"Something went wrong: {ex.Message}");
             return false;
         }
         return false;

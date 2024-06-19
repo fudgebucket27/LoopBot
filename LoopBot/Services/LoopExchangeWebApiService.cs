@@ -33,72 +33,69 @@ namespace LoopBot.Services
             _client.AddDefaultHeader("authorization", $"Bearer {newToken}");
         }
 
-        public async Task<NftDetails> GetNftDetailsAsync(string nftUrlId)
+        public async Task<NftDetails?> GetNftDetailsAsync(string nftUrlId)
         {
             var request = new RestRequest($"/nft/{nftUrlId}");
-            try
+            var response = await _client.ExecuteGetAsync<NftDetails>(request);
+            if (response.IsSuccessful)
             {
-                var response = await _client.GetAsync<NftDetails>(request);
-                return response;
+                return response.Data;
             }
-            catch (HttpRequestException ex)
+            else
             {
-                Console.WriteLine(ex.Message);
-                return null;
+                throw new Exception($"Error getting NFT details from LoopExchange, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
             }
 
         }
 
-        public async Task<NftCollectionInfo> GetCollectionInfo(string url)
+        public async Task<NftCollectionInfo?> GetCollectionInfo(string url)
         {
             Uri uri = new Uri(url);
             string[] segments = uri.Segments;
             var collection = segments[segments.Length - 1].TrimEnd('/');
             var request = new RestRequest($"/collection/{collection}");
-            try
+            var response = await _client.ExecuteGetAsync<NftCollectionInfo>(request);
+            if (response.IsSuccessful)
             {
-                var response = await _client.GetAsync<NftCollectionInfo>(request);
-                return response;
+                return response.Data;
             }
-            catch (HttpRequestException ex)
+            else
             {
-                Console.WriteLine(ex.Message);
-                return null;
+                throw new Exception($"Error getting NFT Collection Info from LoopExchange, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
             }
         }
 
-        public async Task<NftCollectionListing> GetCollectionListings(int collectionId)
+        public async Task<NftCollectionListing?> GetCollectionListings(int collectionId)
         {
             var request = new RestRequest($"/collection/{collectionId}/items?limit=20&offset=0&sort=price&sortDescending=false&traits=");
-            try
+
+            var response = await _client.ExecuteGetAsync<NftCollectionListing>(request);
+            if (response.IsSuccessful)
             {
-                var response = await _client.GetAsync<NftCollectionListing>(request);
-                return response;
+                return response.Data;
             }
-            catch (HttpRequestException ex)
+            else
             {
-                Console.WriteLine(ex.Message);
-                return null;
+                throw new Exception($"Error getting NFT Collection Listings from LoopExchange, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
             }
         }
 
-        public async Task<ListingDetails> GetNftListingDetailsAsync(string nftUrlId)
+        public async Task<ListingDetails?> GetNftListingDetailsAsync(string nftUrlId)
         {
             var request = new RestRequest($"/listing/featured-for-nft/{nftUrlId}");
-            try
-            {
-                var response = await _client.GetAsync<ListingDetails>(request);
-                return response;
-            }
-            catch (HttpRequestException ex)
-            {
-                Console.WriteLine(ex.Message);
-                return null;
-            }
 
+            var response = await _client.ExecuteGetAsync<ListingDetails>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error getting NFT Listing Details from LoopExchange, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
         }
 
-        public async Task<object> SubmitTradeAsync(int accountId, string listingId, NftOrder order, string takerOrderEddsaSignature, string signature)
+        public async Task<object?> SubmitTradeAsync(int accountId, string listingId, NftOrder order, string takerOrderEddsaSignature, string signature)
         {
             var request = new RestRequest($"/taker/take-listing/{listingId}");
 
@@ -146,17 +143,16 @@ namespace LoopBot.Services
             };
 
             request.AddJsonBody(body);
-            try
-            {
-                var response = await _client.PostAsync<object>(request);
-                return response;
-            }
-            catch (HttpRequestException ex)
-            {
-                Console.WriteLine(ex.Message);
-                return null;
-            }
 
+            var response = await _client.ExecutePostAsync<object>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error submitting NFT trade to LoopExchange, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
         }
 
         public void Dispose()
