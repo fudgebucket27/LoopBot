@@ -83,7 +83,7 @@ namespace LoopBot.Helpers
             do
             {
                 Console.WriteLine("Enter the LoopExchange URL for the collection(e.g https://loopexchange.art/collection/loopheads):");
-                url = Console.ReadLine();
+                url = Console.ReadLine().Trim();
             } while (!Uri.IsWellFormedUriString(url, UriKind.Absolute));
             return url;
         }
