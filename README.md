@@ -4,10 +4,19 @@
 A simple bot that will buy NFTs from LoopExchange.
 
 # Install
-Download a release [here](https://github.com/fudgebucket27/LoopBot/releases) for your platform.
+Download a release [here](https://github.com/fudgebucket27/LoopBot/releases) for your platform. Unzip the contents after downloading it.
+
+# Usage
+After the contents have been unzipped run the main executable to begin.
+
+If an appsettings.json file hasn't been created yet you will be prompted to enter the values. 
+
+All of the Loopring related information can be exported from [https://loopring.io](https://loopring.io/#/pro). Connect and unlock your account and get the related information under the security section show here: 
+
+![image](https://github.com/fudgebucket27/LoopBot/assets/5258063/5335b866-3682-4b0e-863d-3ab8d6a9209d)
 
 # Appsettings.json
-Keep your appsettings.json file secure and do not share any of the keys or the file itself with anyone!
+Keep your appsettings.json file private!Do not share any of the keys or the file itself with anyone!
 
 # Building from source
 This is a .NET application so you will need an IDE like Visual Studio / Visual Studio code to compile it. You will also need .NET 6.
@@ -29,6 +38,6 @@ DO NOT SHARE ANY OF YOUR KEYS OR THE FILE WITH ANYONE!
 }
 ```
 
-## TO DO
+# TO DO
 Ability to monitor multiple nfts
 
