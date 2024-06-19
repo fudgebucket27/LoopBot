@@ -59,5 +59,5 @@ DO NOT SHARE ANY OF YOUR KEYS OR THE FILE WITH ANYONE!
 ```
 
 # TO DO
-Ability to monitor and buy multiple nfts
-LayerLoot support
+- Ability to monitor and buy multiple nfts
+- LayerLoot support
