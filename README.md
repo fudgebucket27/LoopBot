@@ -35,7 +35,7 @@ LoopBot will direct you with onscreen prompts on how to use it.
 Keep your appsettings.json file private!Do not share any of the keys or the file itself with anyone!
 
 # Building from source
-This is a .NET application so you will need an IDE like Visual Studio / Visual Studio code to compile it. You will also need .NET 6.
+This is a .NET application so you will need an IDE like Visual Studio / Visual Studio Code to compile it. You will also need .NET 6.
 
 You will need to create an appsettings.json file in the LoopBot directory with the setting "Copy to Output Directory" set to "Copy Always" like below. 
 
