@@ -11,7 +11,7 @@ After the contents have been unzipped run the main executable to begin.
 
 If an appsettings.json file hasn't been created yet you will be prompted to enter the values. 
 
-All of the Loopring related information can be exported from [https://loopring.io](https://loopring.io/#/pro). Connect and unlock your account and get the related information under the security section show here: 
+All of the Loopring related information can be exported from the [Loopring Pro DApp](https://loopring.io/#/pro). Connect and unlock your account and get the related information under the security section show here: 
 
 ![image](https://github.com/fudgebucket27/LoopBot/assets/5258063/5335b866-3682-4b0e-863d-3ab8d6a9209d)
 
