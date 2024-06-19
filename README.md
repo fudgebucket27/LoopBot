@@ -1,9 +1,29 @@
 # LoopBot
-![image](https://github.com/fudgebucket27/LoopBot/assets/5258063/37b120f0-54a6-403c-9fb4-25ef88cdccad)
+![image](https://github.com/fudgebucket27/LoopBot/assets/5258063/2fbc4150-a1d1-4826-b4b5-bc55836023aa)
 
-A simple demo bot that will buy NFTs from LoopExchange.
+A simple bot that will buy NFTs from LoopExchange.
 
-You will need to create an appsettings.json file in the LoopBot directory with the setting "Copy to Output Directory" set to "Copy Always" like below. DO NOT SHARE ANY OF YOUR KEYS WITH ANYONE!
+# Install
+Download a release [here](https://github.com/fudgebucket27/LoopBot/releases) for your platform. Unzip the contents after downloading it.
+
+# Usage
+After the contents have been unzipped run the main executable to begin.
+
+If an appsettings.json file hasn't been created yet you will be prompted to enter the values. 
+
+All of the Loopring related information can be exported from the [Loopring Pro DApp](https://loopring.io/#/pro). Connect and unlock your account and get the related information under the security section show here: 
+
+![image](https://github.com/fudgebucket27/LoopBot/assets/5258063/5335b866-3682-4b0e-863d-3ab8d6a9209d)
+
+# Appsettings.json
+Keep your appsettings.json file private!Do not share any of the keys or the file itself with anyone!
+
+# Building from source
+This is a .NET application so you will need an IDE like Visual Studio / Visual Studio code to compile it. You will also need .NET 6.
+
+You will need to create an appsettings.json file in the LoopBot directory with the setting "Copy to Output Directory" set to "Copy Always" like below. 
+
+DO NOT SHARE ANY OF YOUR KEYS OR THE FILE WITH ANYONE!
 ```json
 {
 
@@ -18,10 +38,6 @@ You will need to create an appsettings.json file in the LoopBot directory with t
 }
 ```
 
-## TO DO
-Make user friendly
-
-Ability to watch collection listings
-
-Ability to set a price point to buy an NFT at
+# TO DO
+Ability to monitor multiple nfts
 
