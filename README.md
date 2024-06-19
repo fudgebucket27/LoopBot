@@ -2,7 +2,7 @@
 A simple demo bot that will buy NFTs from LoopExchange.
 
 # Install
-Download a release [here][(https://github.com/fudgebucket27/LoopBot/releases) for your platform.
+Download a release [here](https://github.com/fudgebucket27/LoopBot/releases) for your platform.
 
 # Appsettings.json
 Keep your appsettings.json file secure and do not share any of the keys or the file itself with anyone!
