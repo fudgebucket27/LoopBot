@@ -19,17 +19,25 @@ class Program
     static async Task Main(string[] args)
     {
         var settings = SettingsHelper.GetSettings();
-
         var serviceManager = ServiceManager.Instance;
-        serviceManager.Initialize(settings.LoopringApiKey, settings.LoopringAccountId, settings.LoopringAddress, settings.L1PrivateKey);
+        var loginStatus = serviceManager.Initialize(settings.LoopringApiKey, settings.LoopringAccountId, settings.LoopringAddress, settings.L1PrivateKey);
+
+        if (loginStatus == false)
+        {
+            Console.WriteLine("Login to LoopExchange unsuccessful...");
+            Console.WriteLine("Terminating program in 5 seconds...");
+            Console.WriteLine("Try again later...");
+            Thread.Sleep(5000);
+            System.Environment.Exit(0);
+        }
 
         var selectedMode = OptionsHelper.Choose("Welcome to LoopBot! Choose an option below to begin. Use arrow keys then press enter to select the mode.",
                                                 new string[] { "Monitor collection", "Monitor listing" });
-
         if (selectedMode == 1)
         {
             await ListingMode(serviceManager, settings);
         }
+
 
 
         static async Task<bool> ListingMode(ServiceManager serviceManager, Settings settings)
