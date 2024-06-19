@@ -202,7 +202,7 @@ class Program
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Something went wrong: {ex.Message}");
+            //Console.WriteLine($"Something went wrong: {ex.Message}");
             return false;
         }
         return false;
@@ -252,7 +252,7 @@ class Program
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Something went wrong: {ex.Message}");
+            //Console.WriteLine($"Something went wrong: {ex.Message}");
             return false;
         }
         return false;
