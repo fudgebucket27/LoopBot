@@ -136,7 +136,7 @@ class Program
             var nftFullId = nftItem != null ? nftItem.NftUrlId : ""; 
             if (!string.IsNullOrEmpty(nftFullId)) 
             {
-                Console.WriteLine("Valid Listing found for NFT...Attempting to buy.");
+                Console.WriteLine($"Valid listing found for collection, NFT: '{nftItem.Name}',at price: {nftItem.Token1PriceDecimal} LRC...Attempting to buy...");
                 var nftDetails = await loopExchangeWebApiService.GetNftDetailsAsync(nftFullId);
                 var nftListingDetails = await loopExchangeWebApiService.GetNftListingDetailsAsync(nftFullId);
                 var nftTakerListingDetails = await loopExchangeApiService.GetTakerListingDetailsAsync(nftListingDetails.Id);
@@ -154,7 +154,7 @@ class Program
                 var submitTrade = await loopExchangeWebApiService.SubmitTradeAsync(settings.LoopringAccountId, nftListingDetails.Id, nftTakerOrder, takerEddsaSignature, signedMessage);
                 if (submitTrade != null && submitTrade.ToString() == "{}")
                 {
-                    Console.WriteLine("Bought NFT successfully! Press any key to go back to the options!");
+                    Console.WriteLine($"Bought NFT: '{nftDetails.Name}',at price: {nftItem.Token1PriceDecimal} LRC, successfully! Press any key to go back to the options!");
                     Console.ReadKey();
                     return true;
                 }
@@ -190,7 +190,7 @@ class Program
 
             if (listingPriceDecimal <= priceToBuyDecimal) //NFT has to be under or equal to the price limit
             {
-                Console.WriteLine("Valid Listing found for NFT...Attempting to buy.");
+                Console.WriteLine($"Valid listing found for NFT: '{nftDetails.Name}',at price: {listingPriceDecimal} LRC...Attempting to buy...");
                 //Get  fees
                 var orderFee = await loopringApiService.GetOrderFee(settings.LoopringAccountId, nftDetails.TokenAddress, nftTakerListingDetails.Erc20TokenAmount);
                 var takerOrderFee = await loopExchangeApiService.GetTakerFeesAsync(nftListingDetails.Id, settings.LoopringAccountId, nftDetails.TokenAddress, orderFee.FeeRate.Rate, nftTakerListingDetails.Erc20TokenAmount);
@@ -203,7 +203,7 @@ class Program
                 var submitTrade = await loopExchangeWebApiService.SubmitTradeAsync(settings.LoopringAccountId, nftListingDetails.Id, nftTakerOrder, takerEddsaSignature, signedMessage);
                 if (submitTrade != null && submitTrade.ToString() == "{}")
                 {
-                    Console.WriteLine("Bought NFT successfully! Press any key to go back to the options!");
+                    Console.WriteLine($"Bought NFT: '{nftDetails.Name}',at price: {listingPriceDecimal} LRC, successfully! Press any key to go back to the options!");
                     Console.ReadKey();
                     return true;
                 }
