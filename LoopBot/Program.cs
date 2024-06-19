@@ -101,12 +101,18 @@ class Program
 
     static async Task RefreshTokenIfNeeded(ServiceManager serviceManager, Settings settings, System.Diagnostics.Stopwatch tokenRefreshStopwatch)
     {
-        if (tokenRefreshStopwatch.Elapsed >= TimeSpan.FromMinutes(0.2))
+        if (tokenRefreshStopwatch.Elapsed >= TimeSpan.FromMinutes(5))
         {
             // Refresh the token every 5 minutes
-            var newToken = await serviceManager.LoopExchangeApiService.LoginAsync(settings.LoopringAccountId, settings.LoopringAddress, settings.L1PrivateKey);
-            serviceManager.LoopExchangeWebApiService.UpdateAuthorizationHeader(newToken.AccessToken);
-
+            try
+            {
+                var newToken = await serviceManager.LoopExchangeApiService.LoginAsync(settings.LoopringAccountId, settings.LoopringAddress, settings.L1PrivateKey);
+                serviceManager.LoopExchangeWebApiService.UpdateAuthorizationHeader(newToken.AccessToken);
+            }
+            catch (Exception ex)
+            {
+                
+            }
             // Reset the stopwatch
             tokenRefreshStopwatch.Restart();
         }
