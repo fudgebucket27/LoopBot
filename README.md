@@ -15,6 +15,8 @@ All of the Loopring related information can be exported from the [Loopring Pro D
 
 ![image](https://github.com/fudgebucket27/LoopBot/assets/5258063/5335b866-3682-4b0e-863d-3ab8d6a9209d)
 
+LoopBot will direct you with onscreen prompts on how to use it.
+
 # Appsettings.json
 Keep your appsettings.json file private!Do not share any of the keys or the file itself with anyone!
 
