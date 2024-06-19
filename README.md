@@ -3,6 +3,9 @@
 
 A simple bot that will buy NFTs from LoopExchange.
 
+# Demo
+https://github.com/fudgebucket27/LoopBot/assets/5258063/461b90cd-1fd9-4282-a55d-355ef5d01e80
+
 # Features
 - Monitor a collection for new listings and buy an NFT under a certain price point
 - Monitor a NFT for new listings and buy it under a certain price point.
