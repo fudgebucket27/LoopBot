@@ -49,6 +49,39 @@ namespace LoopBot.Services
 
         }
 
+        public async Task<NftCollectionInfo> GetCollectionInfo(string url)
+        {
+            Uri uri = new Uri(url);
+            string[] segments = uri.Segments;
+            var collection = segments[segments.Length - 1].TrimEnd('/');
+            var request = new RestRequest($"/collection/{collection}");
+            try
+            {
+                var response = await _client.GetAsync<NftCollectionInfo>(request);
+                return response;
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
+        }
+
+        public async Task<NftCollectionListing> GetCollectionListings(int collectionId)
+        {
+            var request = new RestRequest($"/collection/{collectionId}/items?limit=20&offset=0&sort=price&sortDescending=false&traits=");
+            try
+            {
+                var response = await _client.GetAsync<NftCollectionListing>(request);
+                return response;
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
+        }
+
         public async Task<ListingDetails> GetNftListingDetailsAsync(string nftUrlId)
         {
             var request = new RestRequest($"/listing/featured-for-nft/{nftUrlId}");

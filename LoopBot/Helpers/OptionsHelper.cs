@@ -77,6 +77,17 @@ namespace LoopBot.Helpers
             return nftFullId;
         }
 
+        public static string ChooseUrlOption()
+        {
+            string url;
+            do
+            {
+                Console.WriteLine("Enter the LoopExchange URL for the collection(e.g https://loopexchange.art/collection/loopheads):");
+                url = Console.ReadLine();
+            } while (!Uri.IsWellFormedUriString(url, UriKind.Absolute));
+            return url;
+        }
+
         public static decimal ChoosePriceToBuyOption()
         {
             var priceToBuyDecimal = 0m;
