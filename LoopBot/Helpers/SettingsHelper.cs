@@ -61,7 +61,7 @@ namespace LoopBot.Helpers
             {
                 Console.WriteLine("You are missing some settings in your appsettings.json file. Please add them.");
                 Console.WriteLine("Terminating program in 5 seconds...");
-                Thread.Sleep(5000);
+                Task.Delay(5000);
                 System.Environment.Exit(0);
             }
 

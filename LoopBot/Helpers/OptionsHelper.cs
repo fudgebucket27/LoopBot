@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,7 +9,7 @@ namespace LoopBot.Helpers
 {
     public static class OptionsHelper
     {
-        public static int Choose(string message, string[] options)
+        public static int ChooseMainMenuOptions(string message, string[] options)
         {
             int selectedIndex = 0;
             ConsoleKey key;
@@ -18,7 +19,7 @@ namespace LoopBot.Helpers
 
             do
             {
-                DisplayOptions(options, selectedIndex);
+                DisplayMainMenuOptions(options, selectedIndex);
 
                 key = Console.ReadKey(true).Key;
 
@@ -40,7 +41,7 @@ namespace LoopBot.Helpers
             return selectedIndex;
         }
 
-        private static void DisplayOptions(string[] options, int selectedIndex)
+        private static void DisplayMainMenuOptions(string[] options, int selectedIndex)
         {
             Console.SetCursorPosition(0, 1);
 
@@ -59,6 +60,59 @@ namespace LoopBot.Helpers
                 Console.WriteLine(options[i]);
             }
             Console.ResetColor();
+        }
+
+        public static string ChooseNftListingOption()
+        {
+            string nftFullId = ""; //test with 0x16e0eae0799de387be4917d05e8eb00e0a1ccb43-0-0xde2404647c15e8bfb6656e3000bdb4b54cc5a3fa-0xb128327dd0a36ebc1494ffb3b0ea7ea8cfecb01cc6b422ce25330b6dd19f486b-10;
+            while (string.IsNullOrEmpty(nftFullId) || nftFullId.Split('-').Length != 5)
+            {
+                Console.WriteLine("Enter the full nft id to buy:");
+                nftFullId = Console.ReadLine().Trim();
+                if (nftFullId.Split('-').Length != 5)
+                {
+                    Console.WriteLine("Not a valid full nft id. Try again...");
+                }
+            }
+            return nftFullId;
+        }
+
+        public static decimal ChoosePriceToBuyOption()
+        {
+            var priceToBuyDecimal = 0m;
+            while (true)
+            {
+                Console.WriteLine("Please enter a price to buy at in LRC:");
+                string input = Console.ReadLine();
+                if (decimal.TryParse(input, out priceToBuyDecimal))
+                {
+                    if (priceToBuyDecimal != 0)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine("The price cannot be zero. Please enter a valid price.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Invalid price. Please enter a valid price");
+                }
+            }
+            return priceToBuyDecimal;
+        }
+
+        public static int ChooseDelayInSeconds()
+        {
+            int delay;
+            string input;
+            do
+            {
+                Console.WriteLine("Enter how often to check listings in seconds (must be greater than or equal to 1)");
+                input = Console.ReadLine();
+            } while (!int.TryParse(input, out delay) || delay < 1);
+            return delay;
         }
     }
 }

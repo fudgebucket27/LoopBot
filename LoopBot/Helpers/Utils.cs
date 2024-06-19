@@ -34,5 +34,14 @@ namespace LoopBot.Helpers
             // Convert to string without scientific notation
             return scaledValue.ToString("0");
         }
+
+        public static decimal ConvertStringToDecimal(string value)
+        {
+            // Parse the string to a decimal
+            decimal parsedValue = decimal.Parse(value);
+            // Divide by 10^18 to get the original decimal value
+            decimal originalValue = parsedValue / 1000000000000000000m;
+            return originalValue;
+        }
     }
 }
