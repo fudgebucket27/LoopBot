@@ -51,7 +51,7 @@ class Program
             }
 
             var selectedMode = OptionsHelper.ChooseMainMenuOptions("Welcome to LoopBot! Choose an option below to begin. Use arrow keys then press enter to select the mode.",
-                                                   new string[] { "Monitor collection", "Monitor listing", "Exit" });
+                                                   new string[] { "Monitor collection", "Monitor listing", "Modify appsettings", "Exit" });
 
             if (selectedMode == 0 && !cts.Token.IsCancellationRequested)
             {
@@ -121,7 +121,12 @@ class Program
                     }
                 } while (!nftIsBought && !cts.Token.IsCancellationRequested);
             }
-            else if (selectedMode == 2)
+            else if(selectedMode == 2)
+            {
+                settings = SettingsHelper.ModifyAppSettingsFile();
+                await RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch, true);
+            }
+            else if (selectedMode == 3)
             {
                 exit = true;
 
@@ -133,9 +138,9 @@ class Program
     }
 
 
-    static async Task RefreshTokenIfNeeded(ServiceManager serviceManager, Settings settings, System.Diagnostics.Stopwatch tokenRefreshStopwatch)
+    static async Task RefreshTokenIfNeeded(ServiceManager serviceManager, Settings settings, System.Diagnostics.Stopwatch tokenRefreshStopwatch, bool appsettingsChanged = false)
     {
-        if (tokenRefreshStopwatch.Elapsed >= TimeSpan.FromMinutes(5))
+        if (tokenRefreshStopwatch.Elapsed >= TimeSpan.FromMinutes(5) || appsettingsChanged == true)
         {
             // Refresh the token every 5 minutes
             try

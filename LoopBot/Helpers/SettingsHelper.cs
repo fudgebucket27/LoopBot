@@ -31,6 +31,38 @@ namespace LoopBot.Helpers
             return settings;
         }
 
+        public static Settings ModifyAppSettingsFile()
+        {
+            Console.WriteLine("Modifying your appsettings.json file...Follow the prompts below...");
+
+            var settings = new Settings();
+
+            settings.LoopringApiKey = PromptForNonEmptyString("Enter your Loopring Api Key: ");
+            settings.LoopringPrivateKey = PromptForNonEmptyString("Enter your Loopring L2 Private Key: ");
+            settings.L1PrivateKey = PromptForNonEmptyString("Enter your L1 PrivateKey: ");
+            settings.LoopringAddress = PromptForNonEmptyString("Enter your Loopring Address in 0x format: ");
+            settings.LoopringAccountId = PromptForNonZeroInt("Enter your Loopring Account Id: ");
+            settings.Exchange = "0x0BABA1Ad5bE3a5C0a66E7ac838a129Bf948f1eA4";
+
+            var settingsObject = new
+            {
+                Settings = settings
+            };
+
+            var jsonOptions = new JsonSerializerOptions
+            {
+                WriteIndented = true
+            };
+
+            string jsonString = JsonSerializer.Serialize(settingsObject, jsonOptions);
+
+            File.WriteAllText("appsettings.json", jsonString);
+
+            Console.WriteLine("appsettings.json file modified successfully.");
+            return settings;
+
+        }
+
         private static void CreateAppSettingsFile()
         {
             Console.WriteLine("Creating a new appsettings.json file...Follow the prompts below...");
