@@ -33,7 +33,6 @@ class Program
         }
 
         bool exit = false;
-        // Initialize the stopwatch
         var tokenRefreshStopwatch = System.Diagnostics.Stopwatch.StartNew();
         while (!exit)
         {
