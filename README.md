@@ -3,8 +3,19 @@
 
 A simple bot that will buy NFTs from LoopExchange.
 
+# Features
+- Monitor a collection and buy an NFT under a certain price point
+- Monitor a NFT for new listings and buy it under a certain price point.
+
 # Install
 Download a release [here](https://github.com/fudgebucket27/LoopBot/releases) for your platform. Unzip the contents after downloading it.
+
+# macOS users
+For macOS users: You also need to run the following command in the unzipped folder of LoopBot to turn it into an executable in order to run it. You may also need to add it as a trusted application if it get's blocked from running.
+
+```bash
+chmod +x LoopBot
+```
 
 # Usage
 After the contents have been unzipped run the main executable to begin.
@@ -41,5 +52,5 @@ DO NOT SHARE ANY OF YOUR KEYS OR THE FILE WITH ANYONE!
 ```
 
 # TO DO
-Ability to monitor multiple nfts
-
+Ability to monitor and buy multiple nfts
+LayerLoot support
