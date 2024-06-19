@@ -1,7 +1,7 @@
 # LoopBot
 ![image](https://github.com/fudgebucket27/LoopBot/assets/5258063/2fbc4150-a1d1-4826-b4b5-bc55836023aa)
 
-A simple bot that will buy NFTs from LoopExchange.
+A simple bot that will buy NFTs from LoopExchange.  
 
 # Demo
 https://github.com/fudgebucket27/LoopBot/assets/5258063/461b90cd-1fd9-4282-a55d-355ef5d01e80
