@@ -56,14 +56,14 @@ class Program
             }
         }
 
-        var priceToBuy = 0m;
+        var priceToBuyDecimal = 0m;
         while (true)
         {
             Console.WriteLine("Please enter a price to buy at in LRC:");
             string input = Console.ReadLine();
-            if (decimal.TryParse(input, out priceToBuy))
+            if (decimal.TryParse(input, out priceToBuyDecimal))
             {
-                if (priceToBuy != 0)
+                if (priceToBuyDecimal != 0)
                 {
                     break;
                 }
@@ -77,6 +77,8 @@ class Program
                 Console.WriteLine("Invalid price. Please enter a valid price");
             }
         }
+
+        var priceToBuy = Utils.ConvertDecimalToStringRepresentation(priceToBuyDecimal); 
 
         //Setup
         var loopExchangeApiService = serviceManager.LoopExchangeApiService;

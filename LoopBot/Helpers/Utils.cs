@@ -26,5 +26,13 @@ namespace LoopBot.Helpers
             stringToEncode = HttpUtility.UrlEncode(stringToEncode);
             return reg.Replace(stringToEncode, m => m.Value.ToUpperInvariant());
         }
+
+        public static string ConvertDecimalToStringRepresentation(decimal value)
+        {
+            // Multiply by 10^18 LRC token decimals
+            decimal scaledValue = value * 1000000000000000000m;
+            // Convert to string without scientific notation
+            return scaledValue.ToString("0");
+        }
     }
 }
