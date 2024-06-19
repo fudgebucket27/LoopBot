@@ -23,6 +23,16 @@ namespace LoopBot.Services
             _client.AddDefaultHeader("authorization", $"Bearer {token}");
         }
 
+        public void UpdateAuthorizationHeader(string newToken)
+        {
+            var authParameter = _client.DefaultParameters.FirstOrDefault(p => p.Name == "authorization");
+            if (authParameter != null)
+            {
+                _client.DefaultParameters.RemoveParameter(authParameter);
+            }
+            _client.AddDefaultHeader("authorization", $"Bearer {newToken}");
+        }
+
         public async Task<NftDetails> GetNftDetailsAsync(string nftUrlId)
         {
             var request = new RestRequest($"/nft/{nftUrlId}");
