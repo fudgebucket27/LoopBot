@@ -41,11 +41,21 @@ namespace LoopBot.Helpers
 
         public static decimal ConvertStringToDecimal(string value)
         {
-            // Parse the string to a decimal
-            decimal parsedValue = decimal.Parse(value);
-            // Divide by 10^18 to get the original decimal value
-            decimal originalValue = parsedValue / 1000000000000000000m;
-            return originalValue;
+            if (string.IsNullOrEmpty(value))
+            {
+                return 0m;
+            }
+            try
+            {
+                decimal parsedValue = decimal.Parse(value);
+                // Divide by 10^18 to get the original decimal value
+                decimal originalValue = parsedValue / 1000000000000000000m;
+                return originalValue;
+            }
+            catch (FormatException)
+            {
+                return 0m;
+            }
         }
 
         public static async Task<(NftOrder, string, string, string)> CreateAndSignNftTakerOrderAsync(Settings settings, NftDetails nftDetails, TakerListingDetails nftTakerListingDetails, ListingDetails nftListingDetails, NftOrderFee orderFee, StorageId storageId, TakerFee takerOrderFee)

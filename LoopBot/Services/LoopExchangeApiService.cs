@@ -21,7 +21,7 @@ namespace LoopBot.Services
             _client.AddDefaultHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0");
         }
 
-        public async Task<BearerToken> LoginAsync(int accountId, string address, string l1PrivateKey)
+        public async Task<BearerToken?> LoginAsync(int accountId, string address, string l1PrivateKey)
         {
             var loopexchangeLoginMessage = "Welcome to LoopExchange!\n\nClick to sign in and agree to LoopExchange Terms of Service and Privacy policy.\n\nThis request will not trigger a blockchain transaction or cost any gas fees.";
             var l1Key = new EthECKey(l1PrivateKey);
@@ -36,51 +36,45 @@ namespace LoopBot.Services
                 isCounterfactual = false,
                 chainID = 1
             });
-            try
-            {
-                var response = await _client.PostAsync<BearerToken>(request);
-                return response;
-            }
-            catch (HttpRequestException ex)
-            {
-                Console.WriteLine(ex.Message);
-                return null;
-            }
 
+            var response = await _client.ExecutePostAsync<BearerToken>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error logging into LoopExchange, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
         }
 
-        public async Task<TakerListingDetails> GetTakerListingDetailsAsync(string id)
+        public async Task<TakerListingDetails?> GetTakerListingDetailsAsync(string id)
         {
             var request = new RestRequest($"/web-v1/taker/{id}");
-
-            try
+            var response = await _client.ExecuteGetAsync<TakerListingDetails>(request);
+            if (response.IsSuccessful)
             {
-                var response = await _client.GetAsync<TakerListingDetails>(request);
-                return response;
+                return response.Data;
             }
-            catch (HttpRequestException ex)
+            else
             {
-                Console.WriteLine(ex.Message);
-                return null;
+                throw new Exception($"Error getting Taker Listing Details from LoopExchange, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
             }
-
         }
 
-        public async Task<TakerFee> GetTakerFeesAsync(string id, int accountId, string nftTokenAddress, int maxFeeBips, string sellTokenAmount)
+        public async Task<TakerFee?> GetTakerFeesAsync(string id, int accountId, string nftTokenAddress, int maxFeeBips, string sellTokenAmount)
         {
             var request = new RestRequest($"/web-v1/taker/{id}/calculatefees?chainId=1&accountId={accountId}&nftTokenAddress={nftTokenAddress}&feeTokenId=1&maxFeeBips={maxFeeBips}&sellTokenAmount={sellTokenAmount}");
+            var response = await _client.ExecuteGetAsync<TakerFee>(request);
 
-            try
+            if (response.IsSuccessful)
             {
-                var response = await _client.GetAsync<TakerFee>(request);
-                return response;
+                return response.Data;
             }
-            catch (HttpRequestException ex)
+            else
             {
-                Console.WriteLine(ex.Message);
-                return null;
+                throw new Exception($"Error getting Taker Fees from LoopExchange, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
             }
-
         }
 
         public void Dispose()
