@@ -42,5 +42,6 @@ This is a .NET application so you will need an IDE like Visual Studio / Visual S
 Make sure the appsettings.json is not included in your source files, though the current .gitignore should have this set already. 
 
 # TO DO
+- Mass Listings
 - Ability to monitor and buy multiple nfts
 - LayerLoot support
