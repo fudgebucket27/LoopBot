@@ -333,10 +333,64 @@ namespace LoopBot.Helpers
             Console.WriteLine(new string(' ', Console.WindowWidth - 1)); // Clear the message
         }
 
+        public static long ChooseExpirationOption()
+        {
+            string[] options = { "an hour", "a day", "7 days", "14 days", "a month" };
+            int selectedIndex = 0;
+
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("Please choose how long the listing/s is valid for using the up and down arrows, and press Enter to select:");
+
+                for (int i = 0; i < options.Length; i++)
+                {
+                    if (i == selectedIndex)
+                    {
+                        Console.WriteLine($"> {options[i]}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"  {options[i]}");
+                    }
+                }
+
+                var key = Console.ReadKey();
+                if (key.Key == ConsoleKey.UpArrow)
+                {
+                    selectedIndex = (selectedIndex == 0) ? options.Length - 1 : selectedIndex - 1;
+                }
+                else if (key.Key == ConsoleKey.DownArrow)
+                {
+                    selectedIndex = (selectedIndex == options.Length - 1) ? 0 : selectedIndex + 1;
+                }
+                else if (key.Key == ConsoleKey.Enter)
+                {
+                    break;
+                }
+            }
+
+            int expirationInSeconds = options[selectedIndex] switch
+            {
+                "an hour" => 3600,
+                "a day" => 86400,
+                "7 days" => 604800,
+                "14 days" => 1209600,
+                "a month" => 2592000,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            long expirationTimestamp = now.ToUnixTimeSeconds() + expirationInSeconds;
+
+            return expirationTimestamp;
+        }
+
         public static async Task ShowNftOptions(Datum nft)
         {
             var amountToSell = ChooseAmountToSellOption(Int32.Parse(nft.Total));
             var priceToSell = ChoosePriceToSellOption();
+            var expirationInSeconds = ChooseExpirationOption();
             await Task.Delay(2000);
         }
 
