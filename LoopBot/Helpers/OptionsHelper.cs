@@ -133,12 +133,13 @@ namespace LoopBot.Helpers
             int offset = 0;
             bool exitPagination = false;
             int selectedIndex = 0;
+            ConsoleKey input = ConsoleKey.NoName;
 
             while (!exitPagination)
             {
                 Console.WriteLine("Getting NFTs...");
                 var nftBalance = await serviceManager.LoopringApiService.GetNftBalancePage(accountId, offset);
-                Console.Clear();
+                //Console.Clear();
 
                 if (nftBalance == null || nftBalance.TotalNum == 0)
                 {
@@ -158,7 +159,7 @@ namespace LoopBot.Helpers
                     // Display navigation options
                     DisplayNavigationOptions();
 
-                    var input = Console.ReadKey(true).Key;
+                    input = Console.ReadKey(true).Key;
 
                     switch (input)
                     {
@@ -211,7 +212,7 @@ namespace LoopBot.Helpers
                     }
                 }
 
-                if (!exitPagination && selectedIndex < nftBalance.Data.Count)
+                if (input == ConsoleKey.Enter && !exitPagination && selectedIndex < nftBalance.Data.Count)
                 {
                     Console.Clear();
                     var selectedNft = nftBalance.Data[selectedIndex];
@@ -220,8 +221,6 @@ namespace LoopBot.Helpers
                     await ShowNftOptions(selectedNft);
                 }
             }
-            Console.WriteLine("Exiting NFT selection...");
-            await Task.Delay(TimeSpan.FromSeconds(2));
         }
 
         private static void DisplayTopSection()
@@ -232,9 +231,8 @@ namespace LoopBot.Helpers
 
         private static void DisplayNftList(NftBalance nftBalance, int offset, int selectedIndex)
         {
-            int displayCount = Math.Min(nftBalance.Data.Count, Console.WindowHeight - 3);
-
-            for (int i = 0; i < displayCount; i++)
+   
+            for (int i = 0; i < nftBalance.Data.Count; i++)
             {
                 var nft = nftBalance.Data[i];
                 if (i == selectedIndex)
@@ -248,19 +246,11 @@ namespace LoopBot.Helpers
                     Console.WriteLine($"{i + 1 + offset}. {nft.Metadata.Base.Name}");
                 }
             }
-
-            // Clear remaining lines if any
-            int currentLineCursor = displayCount + 1;
-            while (currentLineCursor < Console.WindowHeight - 3)
-            {
-                Console.WriteLine(new string(' ', Console.WindowWidth));
-                currentLineCursor++;
-            }
         }
 
         private static void DisplayNavigationOptions()
         {
-            Console.WriteLine("\n[N]ext Page, [P]revious Page, [E]xit");
+            Console.WriteLine("[P]revious Page, [N]ext Page [E]xit");
         }
 
 
