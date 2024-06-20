@@ -137,6 +137,10 @@ namespace LoopBot.Helpers
 
             while (!exitPagination)
             {
+                Console.Clear();
+                DisplayTopSection();
+                DisplayNavigationOptions();
+
                 Console.WriteLine("Getting NFTs...");
                 var nftBalance = await serviceManager.LoopringApiService.GetNftBalancePage(accountId, offset);
 
@@ -181,7 +185,7 @@ namespace LoopBot.Helpers
                             }
                             else
                             {
-                                DisplayErrorMessage("You are on the last page.");
+                                await DisplayErrorMessage("You are on the last page.");
                             }
                             break;
                         case ConsoleKey.P:
@@ -193,7 +197,7 @@ namespace LoopBot.Helpers
                             }
                             else
                             {
-                                DisplayErrorMessage("You are on the first page.");
+                                await DisplayErrorMessage("You are on the first page.");
                             }
                             break;
                         case ConsoleKey.E:
@@ -201,7 +205,7 @@ namespace LoopBot.Helpers
                             optionSelected = true;
                             break;
                         default:
-                            DisplayErrorMessage("Invalid input. Please try again.");
+                            await DisplayErrorMessage("Invalid input. Please try again.");
                             break;
                     }
                 }
@@ -260,11 +264,11 @@ namespace LoopBot.Helpers
             Console.ResetColor();
         }
 
-        private static void DisplayErrorMessage(string message)
+        private static async Task DisplayErrorMessage(string message)
         {
             Console.SetCursorPosition(0, Console.WindowHeight - 1);
             Console.WriteLine(message.PadRight(Console.WindowWidth - 1));
-            Thread.Sleep(1000); // Using Thread.Sleep to simplify
+            await Task.Delay(500);
             Console.SetCursorPosition(0, Console.WindowHeight - 1);
             Console.WriteLine(new string(' ', Console.WindowWidth - 1)); // Clear the message
         }
