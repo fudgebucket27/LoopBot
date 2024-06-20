@@ -131,5 +131,70 @@ namespace LoopBot.Helpers
             return (nftTakerOrder, takerEddsaSignature, message, signedMessage);
         }
 
+        public static async Task<(NftOrder, string)> CreateAndSignNftMakerOrderAsync(
+         Settings settings,
+         int nftTokenId,
+         string nftData,
+         string priceToSellAmount,
+         int storageId,
+         int maxFeeBips,
+         long validUntil
+         )
+        {
+            // Creating the NFT maker order
+            NftOrder nftMakerOrder = new NftOrder()
+            {
+                exchange = settings.Exchange,
+                accountId = settings.LoopringAccountId,
+                storageId = storageId,
+                sellToken = new SellToken
+                {
+                    tokenId = nftTokenId,
+                    nftData = nftData,
+                    amount = "1"
+                    
+                },
+                buyToken = new BuyToken
+                {
+                    tokenId = 1, //LRC
+                    amount = priceToSellAmount
+                },
+                allOrNone = false,
+                fillAmountBOrS = true,
+                validUntil = validUntil,
+                maxFeeBips = maxFeeBips
+            };
+
+            int fillAmountBOrSValue2 = nftMakerOrder.fillAmountBOrS ? 1 : 0;
+
+            BigInteger[] poseidonTakerOrderInputs =
+                    {
+                Utils.ParseHexUnsigned(settings.Exchange),
+                (BigInteger)nftMakerOrder.storageId,
+                (BigInteger)nftMakerOrder.accountId,
+                (BigInteger)nftMakerOrder.sellToken.tokenId,
+                !string.IsNullOrEmpty(nftMakerOrder.buyToken.nftData) ? Utils.ParseHexUnsigned(nftMakerOrder.buyToken.nftData) : (BigInteger)nftMakerOrder.buyToken.tokenId,
+                !string.IsNullOrEmpty(nftMakerOrder.sellToken.amount) ? BigInteger.Parse(nftMakerOrder.sellToken.amount) : BigInteger.Zero,
+                !string.IsNullOrEmpty(nftMakerOrder.buyToken.amount) ? BigInteger.Parse(nftMakerOrder.buyToken.amount) : BigInteger.Zero,
+                (BigInteger)nftMakerOrder.validUntil,
+                (BigInteger)nftMakerOrder.maxFeeBips,
+                (BigInteger)fillAmountBOrSValue2,
+                Utils.ParseHexUnsigned("0x0000000000000000000000000000000000000000")
+            };
+
+            // Generate the Poseidon hash asynchronously
+            Poseidon poseidon2 = new Poseidon(12, 6, 53, "poseidon", 5, _securityTarget: 128);
+            BigInteger takerOrderPoseidonHash = await Task.Run(() => poseidon2.CalculatePoseidonHash(poseidonTakerOrderInputs));
+
+            // Generate the signatures asynchronously
+            Eddsa eddsa2 = new Eddsa(takerOrderPoseidonHash, settings.LoopringPrivateKey);
+            string makerEddsaSignature = await Task.Run(() => eddsa2.Sign());
+
+            nftMakerOrder.eddsaSignature = makerEddsaSignature;
+
+
+            return (nftMakerOrder, makerEddsaSignature);
+        }
+
     }
 }

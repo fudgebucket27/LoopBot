@@ -95,7 +95,7 @@ namespace LoopBot.Services
             }
         }
 
-        public async Task<object?> SubmitTradeAsync(int accountId, string listingId, NftOrder order, string takerOrderEddsaSignature, string signature)
+        public async Task<object?> SubmitTakerTradeAsync(int accountId, string listingId, NftOrder order, string takerOrderEddsaSignature, string signature)
         {
             var request = new RestRequest($"/taker/take-listing/{listingId}");
 
@@ -151,7 +151,42 @@ namespace LoopBot.Services
             }
             else
             {
-                throw new Exception($"Error submitting NFT trade to LoopExchange, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+                throw new Exception($"Error submitting NFT taker trade to LoopExchange, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
+        }
+
+        public async Task<NftListingResponse?> SubmitMakerTradeAsync(List<(NftOrder makerOrder, string makerOrderEddsaSignature)> makerOrders, long validUntil)
+        {
+            var request = new RestRequest($"/my-listing");
+
+            // Create a new structure to hold the correctly formatted makerOrders
+            var makerOrdersList = new List<Dictionary<string, string>>();
+            foreach (var order in makerOrders)
+            {
+                var dict = new Dictionary<string, string>
+            {
+                { "makerOrder", JsonConvert.SerializeObject(order.makerOrder) },
+                { "makerOrderEddsaSignature", order.makerOrderEddsaSignature }
+            };
+                makerOrdersList.Add(dict);
+            }
+
+            var body = new
+            {
+                validUntil,
+                makerOrders = makerOrdersList
+            };
+
+            request.AddJsonBody(body);
+
+            var response = await _client.ExecutePostAsync<NftListingResponse>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error submitting NFT maker trade to LoopExchange, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
             }
         }
 

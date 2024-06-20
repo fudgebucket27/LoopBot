@@ -187,7 +187,7 @@ namespace LoopBot.Helpers
             } while (!int.TryParse(input, out delay) || delay < 1);
             return delay;
         }
-        public static async Task DisplayNftBalanceWithPagination(ServiceManager serviceManager, int accountId)
+        public static async Task DisplayNftBalanceWithPagination(ServiceManager serviceManager, Settings settings)
         {
             int offset = 0;
             bool exitPagination = false;
@@ -202,7 +202,7 @@ namespace LoopBot.Helpers
                 DisplayNavigationOptions();
 
                 Console.WriteLine("Getting NFTs...");
-                var nftBalance = await serviceManager.LoopringApiService.GetNftBalancePage(accountId, offset);
+                var nftBalance = await serviceManager.LoopringApiService.GetNftBalancePage(settings.LoopringAccountId, offset);
 
                 if (nftBalance == null || nftBalance.TotalNum == 0)
                 {
@@ -275,7 +275,7 @@ namespace LoopBot.Helpers
                     Console.Clear();
                     var selectedNft = nftBalance.Data[selectedIndex];
                     Console.WriteLine($"You selected: {selectedNft.Metadata.Base.Name} - Amount: {selectedNft.Total}");
-                    await ShowNftOptions(selectedNft);
+                    await ShowNftOptions(selectedNft, serviceManager, settings);
                 }
             }
         }
@@ -387,12 +387,47 @@ namespace LoopBot.Helpers
             return expirationTimestamp;
         }
 
-        public static async Task ShowNftOptions(Datum nft)
+        public static async Task ShowNftOptions(Datum nft, ServiceManager serviceManager, Settings settings)
         {
             var amountToSell = ChooseAmountToSellOption(Int32.Parse(nft.Total));
             var priceToSell = ChoosePriceToSellOption();
             var expirationInSeconds = ChooseExpirationOption();
-            await Task.Delay(2000);
+            try
+            {
+                Console.WriteLine("Submitting listing...");
+                var storageId = await serviceManager.LoopringApiService.GetNextStorageId(settings.LoopringAccountId, nft.TokenId);
+                List<(NftOrder order, string eddsaSignature)> makerOrders = new List<(NftOrder, string)>();
+                for (int i = 0; i < amountToSell; i++)
+                {
+                    var currentStorageID = storageId.orderId * 2;
+                    var platformFee = 2;
+                    var maxFeeBips = (nft.RoyaltyPercentage.Value + platformFee) * 100;
+                    var makerOrder = await Utils.CreateAndSignNftMakerOrderAsync(settings, nft.TokenId, nft.NftData, Utils.ConvertDecimalToStringRepresentation(priceToSell), currentStorageID, maxFeeBips, expirationInSeconds);
+                    makerOrders.Add(makerOrder);
+                }
+                var response = await serviceManager.LoopExchangeWebApiService.SubmitMakerTradeAsync(makerOrders, expirationInSeconds);
+                if (response != null && response.Ids.Count > 0)
+                {
+                    Console.WriteLine("Listing successful! Here is your listing link: ");
+                    var listingLink = response.Ids.First();
+                    Console.WriteLine($"https://loopexchange.art/b/{listingLink}");
+                    Console.WriteLine("\nPress 'e' to continue");
+                    while (Console.ReadKey(true).Key != ConsoleKey.E)
+                    {
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Something went wrong! Try again...");
+                    await Task.Delay(1000);
+                }
+            }
+            catch (Exception ex) 
+            {
+                Console.WriteLine($"Something went wrong! Try again...{ex.Message}");
+                await Task.Delay(1000);
+            }
+           
         }
 
 
