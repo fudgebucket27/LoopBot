@@ -129,9 +129,10 @@ class Program
                     }
                 } while (!nftIsBought && !cts.Token.IsCancellationRequested);
             }
-            else if(selectedMode == 2)
+            else if(selectedMode == 2 && !cts.Token.IsCancellationRequested)
             {
                 await RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch);
+                await OptionsHelper.DisplayNftBalanceWithPagination(serviceManager, settings.LoopringAccountId);
             }
             else if (selectedMode == 3)
             {

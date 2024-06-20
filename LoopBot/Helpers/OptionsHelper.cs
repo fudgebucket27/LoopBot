@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ADRaffy.ENSNormalize;
+using LoopBot.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.AccessControl;
@@ -125,5 +127,151 @@ namespace LoopBot.Helpers
             } while (!int.TryParse(input, out delay) || delay < 1);
             return delay;
         }
+
+        public static async Task DisplayNftBalanceWithPagination(ServiceManager serviceManager, int accountId)
+        {
+            int offset = 0;
+            bool exitPagination = false;
+            int selectedIndex = 0;
+
+            while (!exitPagination)
+            {
+                Console.WriteLine("Getting NFTs...");
+                var nftBalance = await serviceManager.LoopringApiService.GetNftBalancePage(accountId, offset);
+                Console.Clear();
+
+                if (nftBalance == null || nftBalance.TotalNum == 0)
+                {
+                    Console.WriteLine("No NFTs found.");
+                    return;
+                }
+
+                bool optionSelected = false;
+
+                while (!optionSelected)
+                {
+                    DisplayTopSection();
+
+                    // Display NFTs with the selected index
+                    DisplayNftList(nftBalance, offset, selectedIndex);
+
+                    // Display navigation options
+                    DisplayNavigationOptions();
+
+                    var input = Console.ReadKey(true).Key;
+
+                    switch (input)
+                    {
+                        case ConsoleKey.UpArrow:
+                            selectedIndex = (selectedIndex == 0) ? nftBalance.Data.Count - 1 : selectedIndex - 1;
+                            break;
+                        case ConsoleKey.DownArrow:
+                            selectedIndex = (selectedIndex == nftBalance.Data.Count - 1) ? 0 : selectedIndex + 1;
+                            break;
+                        case ConsoleKey.Enter:
+                            optionSelected = true;
+                            break;
+                        case ConsoleKey.N:
+                            if (offset + 25 < nftBalance.TotalNum)
+                            {
+                                offset += 25;
+                                selectedIndex = 0;
+                                optionSelected = true; // Exit inner loop to fetch new data
+                            }
+                            else
+                            {
+                                Console.SetCursorPosition(0, Console.WindowHeight - 1);
+                                Console.WriteLine("You are on the last page.       ");
+                                await Task.Delay(1000);
+                            }
+                            break;
+                        case ConsoleKey.P:
+                            if (offset - 25 >= 0)
+                            {
+                                offset -= 25;
+                                selectedIndex = 0;
+                                optionSelected = true; // Exit inner loop to fetch new data
+                            }
+                            else
+                            {
+                                Console.SetCursorPosition(0, Console.WindowHeight - 1);
+                                Console.WriteLine("You are on the first page.      ");
+                                await Task.Delay(1000);
+                            }
+                            break;
+                        case ConsoleKey.E:
+                            exitPagination = true;
+                            optionSelected = true;
+                            break;
+                        default:
+                            Console.SetCursorPosition(0, Console.WindowHeight - 1);
+                            Console.WriteLine("Invalid input. Please try again.");
+                            await Task.Delay(1000);
+                            break;
+                    }
+                }
+
+                if (!exitPagination && selectedIndex < nftBalance.Data.Count)
+                {
+                    Console.Clear();
+                    var selectedNft = nftBalance.Data[selectedIndex];
+                    Console.WriteLine($"You selected: {selectedNft.Metadata.Base.Name} - Amount: {selectedNft.Total}");
+                    // Here you can add the logic for the selected NFT (e.g., showing more options or details)
+                    await ShowNftOptions(selectedNft);
+                }
+            }
+            Console.WriteLine("Exiting NFT selection...");
+            await Task.Delay(TimeSpan.FromSeconds(2));
+        }
+
+        private static void DisplayTopSection()
+        {
+            Console.Clear();
+            Console.WriteLine("Use arrow keys to navigate and press Enter to select an NFT.");
+        }
+
+        private static void DisplayNftList(NftBalance nftBalance, int offset, int selectedIndex)
+        {
+            int displayCount = Math.Min(nftBalance.Data.Count, Console.WindowHeight - 3);
+
+            for (int i = 0; i < displayCount; i++)
+            {
+                var nft = nftBalance.Data[i];
+                if (i == selectedIndex)
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine($"> {i + 1 + offset}. {nft.Metadata.Base.Name}");
+                    Console.ResetColor();
+                }
+                else
+                {
+                    Console.WriteLine($"{i + 1 + offset}. {nft.Metadata.Base.Name}");
+                }
+            }
+
+            // Clear remaining lines if any
+            int currentLineCursor = displayCount + 1;
+            while (currentLineCursor < Console.WindowHeight - 3)
+            {
+                Console.WriteLine(new string(' ', Console.WindowWidth));
+                currentLineCursor++;
+            }
+        }
+
+        private static void DisplayNavigationOptions()
+        {
+            Console.WriteLine("\n[N]ext Page, [P]revious Page, [E]xit");
+        }
+
+
+
+
+        public static async Task ShowNftOptions(Datum nft)
+        {
+            // Placeholder method for showing more options or details for the selected NFT
+            Console.WriteLine($"Showing options for NFT: {nft.Metadata.Base.Name}");
+            await Task.Delay(2000);
+        }
+
     }
 }

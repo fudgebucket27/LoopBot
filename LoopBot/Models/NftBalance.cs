@@ -425,7 +425,7 @@ namespace LoopBot.Models
         /// The nft base info
         /// </summary>
         [JsonProperty("base")]
-        public NftBase? NftBase { get; set; }
+        public NftBase? Base { get; set; }
         /// <summary>
         /// Image Size info
         /// </summary>

@@ -44,9 +44,9 @@ namespace LoopBot.Services
         {
             var request = new RestRequest("api/v3/user/nft/balances");
             request.AddParameter("accountId", accountId);
-            request.AddParameter("limit", 50);
+            request.AddParameter("limit", 25);
             request.AddParameter("offset", offset);
-            request.AddParameter("metadata", true);
+            request.AddParameter("metadata", "true");
             var response = await _client.ExecuteGetAsync<NftBalance>(request);
             if (response.IsSuccessful)
             {
