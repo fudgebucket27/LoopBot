@@ -23,8 +23,7 @@ class Program
         //Welcome screen
         Assembly assembly = Assembly.GetExecutingAssembly();
         Version version = assembly.GetName().Version;
-        Console.WriteLine(".____                       __________        __   \r\n|    |    ____   ____ ______\\______   \\ _____/  |_ \r\n|    |   /  _ \\ /  _ \\\\____ \\|    |  _//  _ \\   __\\\r\n|    |__(  <_> |  <_> )  |_> >    |   (  <_> )  |  \r\n|_______ \\____/ \\____/|   __/|______  /\\____/|__|  \r\n        \\/            |__|          \\/             "+ $"v{version.ToString().Remove(5,2)}");
-        await Task.Delay(3000);
+        Console.WriteLine(".____                       __________        __   \r\n|    |    ____   ____ ______\\______   \\ _____/  |_ \r\n|    |   /  _ \\ /  _ \\\\____ \\|    |  _//  _ \\   __\\\r\n|    |__(  <_> |  <_> )  |_> >    |   (  <_> )  |  \r\n|_______ \\____/ \\____/|   __/|______  /\\____/|__|  \r\n        \\/            |__|          \\/             "+ $"v{version.ToString().Remove(version.ToString().Length - 2,2)}");
 
         //General Setup
         var settings = SettingsHelper.GetSettings();
@@ -142,8 +141,8 @@ class Program
             }
         }
         cts.Dispose();
-        Console.WriteLine("Exiting LoopBot in 5 seconds. Goodbye!");
-        await Task.Delay(TimeSpan.FromSeconds(5));
+        Console.WriteLine("Exiting LoopBot in a few seconds...Goodbye!");
+        await Task.Delay(TimeSpan.FromSeconds(2));
     }
 
 
