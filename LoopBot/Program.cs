@@ -59,7 +59,7 @@ class Program
             }
 
             var selectedMode = OptionsHelper.ChooseMainMenuOptions("Welcome to LoopBot! Choose an option below to begin. Use arrow keys then press enter to select the mode.",
-                                                   new string[] { "Monitor collection", "Monitor listing", "Modify appsettings", "Exit" });
+                                                   new string[] { "Monitor collection", "Monitor listing", "Mass listing","Modify appsettings", "Exit" });
 
             if (selectedMode == 0 && !cts.Token.IsCancellationRequested)
             {
@@ -131,10 +131,14 @@ class Program
             }
             else if(selectedMode == 2)
             {
+                await RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch);
+            }
+            else if (selectedMode == 3)
+            {
                 settings = SettingsHelper.ModifyAppSettingsFile();
                 await RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch, true);
             }
-            else if (selectedMode == 3)
+            else if (selectedMode == 4)
             {
                 exit = true;
 

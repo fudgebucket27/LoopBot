@@ -40,6 +40,24 @@ namespace LoopBot.Services
             }
         }
 
+        public async Task<NftBalance?> GetNftBalancePage(int accountId, int offset)
+        {
+            var request = new RestRequest("api/v3/user/nft/balances");
+            request.AddParameter("accountId", accountId);
+            request.AddParameter("limit", 50);
+            request.AddParameter("offset", offset);
+            request.AddParameter("metadata", true);
+            var response = await _client.ExecuteGetAsync<NftBalance>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error getting nft balance from Loopring, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
+        }
+
         public async Task<NftOrderFee?> GetOrderFee(int accountId, string tokenAddress, string quoteAmount)
         {
             var request = new RestRequest($"/api/v3/user/nft/orderFee?accountId={accountId}&nftTokenAddress={tokenAddress}&quoteToken=1&quoteAmount={quoteAmount}");
