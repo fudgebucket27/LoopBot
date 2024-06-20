@@ -116,6 +116,66 @@ namespace LoopBot.Helpers
             return priceToBuyDecimal;
         }
 
+        public static decimal ChoosePriceToSellOption()
+        {
+            var priceToSellDecimal = 0m;
+            while (true)
+            {
+                Console.WriteLine("Please enter a price to sell at in LRC:");
+                string input = Console.ReadLine();
+                if (decimal.TryParse(input, out priceToSellDecimal))
+                {
+                    if (priceToSellDecimal != 0)
+                    {
+                        break;
+                    }
+                    else if(priceToSellDecimal < 1.5m)
+                    {
+                        Console.WriteLine("The price has to be more than or equal to 1.5 LRC. Please enter a valid price.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("The price cannot be zero. Please enter a valid price.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Invalid price. Please enter a valid price");
+                }
+            }
+            return priceToSellDecimal;
+        }
+
+        public static int ChooseAmountToSellOption(int limit)
+        {
+            int amountToSellInt = 0;
+            while (true)
+            {
+                Console.WriteLine($"Please enter the amount to sell (Maximum: {limit}):");
+                string input = Console.ReadLine();
+                if (Int32.TryParse(input, out amountToSellInt))
+                {
+                    if (amountToSellInt > 0 && amountToSellInt <= limit)
+                    {
+                        break;
+                    }
+                    else if (amountToSellInt == 0)
+                    {
+                        Console.WriteLine("The amount cannot be zero. Please enter a valid amount.");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"The amount cannot exceed the limit of {limit}. Please enter a valid amount.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Invalid amount. Please enter a valid amount.");
+                }
+            }
+            return amountToSellInt;
+        }
+
         public static int ChooseDelayInSeconds()
         {
             int delay;
@@ -275,7 +335,8 @@ namespace LoopBot.Helpers
 
         public static async Task ShowNftOptions(Datum nft)
         {
-            Console.WriteLine($"Showing options for NFT: {nft.Metadata.Base.Name}");
+            var amountToSell = ChooseAmountToSellOption(Int32.Parse(nft.Total));
+            var priceToSell = ChoosePriceToSellOption();
             await Task.Delay(2000);
         }
 
