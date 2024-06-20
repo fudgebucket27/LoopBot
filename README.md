@@ -39,24 +39,7 @@ Clone this repository.
 
 This is a .NET application so you will need an IDE like Visual Studio / Visual Studio Code to compile it. You will also need .NET 6.
 
-You will need to create an appsettings.json file in the LoopBot directory with the setting "Copy to Output Directory" set to "Copy Always" like below.
-
 Make sure the appsettings.json is not included in your source files, though the current .gitignore should have this set already. 
-
-DO NOT SHARE ANY OF YOUR KEYS OR THE FILE WITH ANYONE!
-```json
-{
-
-  "Settings": {
-    "LoopringApiKey": "kdlblahaha", //Your loopring api key
-    "LoopringPrivateKey": "0xbalahha", //Your Loopring private key
-    "LoopringAddress": "0xblahaha", //Your loopring address
-    "LoopringAccountId": 40940, //Your loopring account id
-    "L1PrivateKey": "assdsxa", //Your L1 Private Key
-    "Exchange": "0x0BABA1Ad5bE3a5C0a66E7ac838a129Bf948f1eA4" //Loopring Exchange address
-  }
-}
-```
 
 # TO DO
 - Ability to monitor and buy multiple nfts
