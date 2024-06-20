@@ -5,6 +5,11 @@ VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoopBot", "LoopBot\LoopBot.csproj", "{9A7FDACD-559B-480E-8091-F9E1C782632F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoopBotTests", "LoopBotTests\LoopBotTests.csproj", "{DE0FA0AA-6669-4A08-980E-0154E65FA718}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9A7FDACD-559B-480E-8091-F9E1C782632F} = {9A7FDACD-559B-480E-8091-F9E1C782632F}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +20,10 @@ Global
 		{9A7FDACD-559B-480E-8091-F9E1C782632F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A7FDACD-559B-480E-8091-F9E1C782632F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A7FDACD-559B-480E-8091-F9E1C782632F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE0FA0AA-6669-4A08-980E-0154E65FA718}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE0FA0AA-6669-4A08-980E-0154E65FA718}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE0FA0AA-6669-4A08-980E-0154E65FA718}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE0FA0AA-6669-4A08-980E-0154E65FA718}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
