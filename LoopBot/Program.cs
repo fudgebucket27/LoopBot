@@ -24,7 +24,7 @@ class Program
         Assembly assembly = Assembly.GetExecutingAssembly();
         Version version = assembly.GetName().Version;
         Console.WriteLine(".____                       __________        __   \r\n|    |    ____   ____ ______\\______   \\ _____/  |_ \r\n|    |   /  _ \\ /  _ \\\\____ \\|    |  _//  _ \\   __\\\r\n|    |__(  <_> |  <_> )  |_> >    |   (  <_> )  |  \r\n|_______ \\____/ \\____/|   __/|______  /\\____/|__|  \r\n        \\/            |__|          \\/             "+ $"v{version.ToString().Remove(5,2)}");
-        Task.Delay(3000);
+        await Task.Delay(3000);
 
         //General Setup
         var settings = SettingsHelper.GetSettings();
