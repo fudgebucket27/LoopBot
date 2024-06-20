@@ -14,11 +14,19 @@ using System.Numerics;
 using LoopBot.Services;
 using System.Text;
 using Nethereum.Contracts.QueryHandlers.MultiCall;
+using System.Reflection;
 
 class Program
 {
     static async Task Main(string[] args)
     {
+        //Welcome screen
+        Assembly assembly = Assembly.GetExecutingAssembly();
+        Version version = assembly.GetName().Version;
+        Console.WriteLine(".____                       __________        __   \r\n|    |    ____   ____ ______\\______   \\ _____/  |_ \r\n|    |   /  _ \\ /  _ \\\\____ \\|    |  _//  _ \\   __\\\r\n|    |__(  <_> |  <_> )  |_> >    |   (  <_> )  |  \r\n|_______ \\____/ \\____/|   __/|______  /\\____/|__|  \r\n        \\/            |__|          \\/             "+ $"v{version.ToString().Remove(5,2)}");
+        Task.Delay(3000);
+
+        //General Setup
         var settings = SettingsHelper.GetSettings();
         var serviceManager = ServiceManager.Instance;
         var loginStatus = serviceManager.Initialize(settings.LoopringApiKey, settings.LoopringAccountId, settings.LoopringAddress, settings.L1PrivateKey);
@@ -42,6 +50,7 @@ class Program
             cts.Cancel();
         };
 
+        //Main option loop
         while (!exit)
         {
             if (cts.Token.IsCancellationRequested)
