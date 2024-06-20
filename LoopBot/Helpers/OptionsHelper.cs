@@ -125,7 +125,7 @@ namespace LoopBot.Helpers
                 string input = Console.ReadLine();
                 if (decimal.TryParse(input, out priceToSellDecimal))
                 {
-                    if (priceToSellDecimal != 0)
+                    if (priceToSellDecimal != 0 && priceToSellDecimal >= 1.5m)
                     {
                         break;
                     }
@@ -341,12 +341,13 @@ namespace LoopBot.Helpers
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine("Please choose how long the listing/s is valid for using the up and down arrows, and press Enter to select:");
+                Console.WriteLine("Please choose how long the listing/s is valid for using the up and down arrows, press Enter to select:");
 
                 for (int i = 0; i < options.Length; i++)
                 {
                     if (i == selectedIndex)
                     {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
                         Console.WriteLine($"> {options[i]}");
                     }
                     else
