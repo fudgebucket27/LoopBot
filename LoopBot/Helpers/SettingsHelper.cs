@@ -179,7 +179,7 @@ namespace LoopBot.Helpers
                 input = Console.ReadLine();
                 if (string.IsNullOrEmpty(input.Trim()) || input.Length < 8)
                 {
-                    Console.WriteLine("The password must be at least 8 characters long. Please enter a valid password.");
+                    Console.Write("The password must be at least 8 characters long.\n\nPlease enter a valid password:");
                     input = null;
                 }
             } while (input == null);
