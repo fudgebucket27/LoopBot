@@ -32,7 +32,7 @@ namespace LoopBot.Helpers
 
                     try
                     {
-                        decryptedJson = DecryptString(encryptedData.EncryptedSettings, encryptionKey, Convert.FromBase64String(encryptedData.IV));
+                        decryptedJson = DecryptString(encryptedData.EncryptedSettings, encryptionKey, Convert.FromBase64String(encryptedData.IV), Convert.FromBase64String(encryptedData.Salt));
                     }
                     catch (CryptographicException)
                     {
@@ -40,14 +40,12 @@ namespace LoopBot.Helpers
                     }
                 }
 
-                // Settings file
                 IConfiguration config = new ConfigurationBuilder()
                     .AddJsonStream(new MemoryStream(Encoding.UTF8.GetBytes(decryptedJson)))
                     .AddEnvironmentVariables()
                     .Build();
                 Settings settings = config.GetRequiredSection("Settings").Get<Settings>();
 
-                // Check if settings file is populated
                 ValidateSettings(settings);
 
                 return settings;
@@ -58,39 +56,32 @@ namespace LoopBot.Helpers
         {
             Console.WriteLine("Modifying your appsettings.json file...Follow the prompts below...");
 
-            var settings = new Settings();
-
-            settings.LoopringApiKey = PromptForNonEmptyString("Enter your Loopring Api Key: ");
-            settings.LoopringPrivateKey = PromptForNonEmptyString("Enter your Loopring L2 Private Key: ");
-            settings.L1PrivateKey = PromptForNonEmptyString("Enter your L1 Private Key: ");
-            settings.LoopringAddress = PromptForNonEmptyString("Enter your Loopring Address in 0x format: ");
-            settings.LoopringAccountId = PromptForNonZeroInt("Enter your Loopring Account Id: ");
-            settings.Exchange = "0x0BABA1Ad5bE3a5C0a66E7ac838a129Bf948f1eA4";
-
-            var settingsObject = new
+            var settings = new Settings
             {
-                Settings = settings
+                LoopringApiKey = PromptForNonEmptyString("Enter your Loopring Api Key: "),
+                LoopringPrivateKey = PromptForNonEmptyString("Enter your Loopring L2 Private Key: "),
+                L1PrivateKey = PromptForNonEmptyString("Enter your L1 Private Key: "),
+                LoopringAddress = PromptForNonEmptyString("Enter your Loopring Address in 0x format: "),
+                LoopringAccountId = PromptForNonZeroInt("Enter your Loopring Account Id: "),
+                Exchange = "0x0BABA1Ad5bE3a5C0a66E7ac838a129Bf948f1eA4"
             };
 
-            var jsonOptions = new JsonSerializerOptions
-            {
-                WriteIndented = true
-            };
-
+            var settingsObject = new { Settings = settings };
+            var jsonOptions = new JsonSerializerOptions { WriteIndented = true };
             string jsonString = JsonSerializer.Serialize(settingsObject, jsonOptions);
 
             Console.Write("Enter a password to secure your settings: ");
             string encryptionKey = PromptForPassword();
-            string encryptedJson = EncryptString(jsonString, encryptionKey, out byte[] iv);
+            string encryptedJson = EncryptString(jsonString, encryptionKey, out byte[] iv, out byte[] salt);
 
             var encryptedData = new EncryptedData
             {
                 EncryptedSettings = encryptedJson,
-                IV = Convert.ToBase64String(iv)
+                IV = Convert.ToBase64String(iv),
+                Salt = Convert.ToBase64String(salt)
             };
 
             string finalJson = JsonSerializer.Serialize(encryptedData, jsonOptions);
-
             File.WriteAllText("appsettings.json", finalJson);
 
             Console.WriteLine("appsettings.json file modified successfully.");
@@ -101,39 +92,32 @@ namespace LoopBot.Helpers
         {
             Console.WriteLine("Creating a new appsettings.json file...Follow the prompts below...");
 
-            var settings = new Settings();
-
-            settings.LoopringApiKey = PromptForNonEmptyString("Enter your Loopring Api Key: ");
-            settings.LoopringPrivateKey = PromptForNonEmptyString("Enter your Loopring L2 Private Key: ");
-            settings.L1PrivateKey = PromptForNonEmptyString("Enter your L1 Private Key: ");
-            settings.LoopringAddress = PromptForNonEmptyString("Enter your Loopring Address in 0x format: ");
-            settings.LoopringAccountId = PromptForNonZeroInt("Enter your Loopring Account Id: ");
-            settings.Exchange = "0x0BABA1Ad5bE3a5C0a66E7ac838a129Bf948f1eA4";
-
-            var settingsObject = new
+            var settings = new Settings
             {
-                Settings = settings
+                LoopringApiKey = PromptForNonEmptyString("Enter your Loopring Api Key: "),
+                LoopringPrivateKey = PromptForNonEmptyString("Enter your Loopring L2 Private Key: "),
+                L1PrivateKey = PromptForNonEmptyString("Enter your L1 Private Key: "),
+                LoopringAddress = PromptForNonEmptyString("Enter your Loopring Address in 0x format: "),
+                LoopringAccountId = PromptForNonZeroInt("Enter your Loopring Account Id: "),
+                Exchange = "0x0BABA1Ad5bE3a5C0a66E7ac838a129Bf948f1eA4"
             };
 
-            var jsonOptions = new JsonSerializerOptions
-            {
-                WriteIndented = true
-            };
-
+            var settingsObject = new { Settings = settings };
+            var jsonOptions = new JsonSerializerOptions { WriteIndented = true };
             string jsonString = JsonSerializer.Serialize(settingsObject, jsonOptions);
 
             Console.Write("Enter a password to secure your settings: ");
             string encryptionKey = PromptForPassword();
-            string encryptedJson = EncryptString(jsonString, encryptionKey, out byte[] iv);
+            string encryptedJson = EncryptString(jsonString, encryptionKey, out byte[] iv, out byte[] salt);
 
             var encryptedData = new EncryptedData
             {
                 EncryptedSettings = encryptedJson,
-                IV = Convert.ToBase64String(iv)
+                IV = Convert.ToBase64String(iv),
+                Salt = Convert.ToBase64String(salt)
             };
 
             string finalJson = JsonSerializer.Serialize(encryptedData, jsonOptions);
-
             File.WriteAllText("appsettings.json", finalJson);
 
             Console.WriteLine("appsettings.json file created successfully.");
@@ -228,44 +212,58 @@ namespace LoopBot.Helpers
             }
         }
 
-        private static string EncryptString(string plainText, string key, out byte[] iv)
+        private static string EncryptString(string plainText, string password, out byte[] iv, out byte[] salt)
         {
-            using (Aes aes = Aes.Create())
+            salt = new byte[16];
+            using (var rng = new RNGCryptoServiceProvider())
             {
-                aes.Key = Encoding.UTF8.GetBytes(key.PadRight(32)); // Ensure the key is 32 bytes
-                aes.GenerateIV();
-                iv = aes.IV;
-                ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+                rng.GetBytes(salt);
+            }
 
-                using (MemoryStream ms = new MemoryStream())
+            using (var deriveBytes = new Rfc2898DeriveBytes(password, salt, 10000))
+            {
+                var key = deriveBytes.GetBytes(32);
+                using (Aes aes = Aes.Create())
                 {
-                    using (CryptoStream cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
+                    aes.Key = key;
+                    aes.GenerateIV();
+                    iv = aes.IV;
+                    ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+
+                    using (MemoryStream ms = new MemoryStream())
                     {
-                        using (StreamWriter sw = new StreamWriter(cs))
+                        using (CryptoStream cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
                         {
-                            sw.Write(plainText);
+                            using (StreamWriter sw = new StreamWriter(cs))
+                            {
+                                sw.Write(plainText);
+                            }
+                            return Convert.ToBase64String(ms.ToArray());
                         }
-                        return Convert.ToBase64String(ms.ToArray());
                     }
                 }
             }
         }
 
-        private static string DecryptString(string cipherText, string key, byte[] iv)
+        private static string DecryptString(string cipherText, string password, byte[] iv, byte[] salt)
         {
-            using (Aes aes = Aes.Create())
+            using (var deriveBytes = new Rfc2898DeriveBytes(password, salt, 10000))
             {
-                aes.Key = Encoding.UTF8.GetBytes(key.PadRight(32)); // Ensure the key is 32 bytes
-                aes.IV = iv;
-                ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
-
-                using (MemoryStream ms = new MemoryStream(Convert.FromBase64String(cipherText)))
+                var key = deriveBytes.GetBytes(32);
+                using (Aes aes = Aes.Create())
                 {
-                    using (CryptoStream cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read))
+                    aes.Key = key;
+                    aes.IV = iv;
+                    ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
+
+                    using (MemoryStream ms = new MemoryStream(Convert.FromBase64String(cipherText)))
                     {
-                        using (StreamReader sr = new StreamReader(cs))
+                        using (CryptoStream cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read))
                         {
-                            return sr.ReadToEnd();
+                            using (StreamReader sr = new StreamReader(cs))
+                            {
+                                return sr.ReadToEnd();
+                            }
                         }
                     }
                 }
@@ -276,6 +274,7 @@ namespace LoopBot.Helpers
         {
             public string EncryptedSettings { get; set; }
             public string IV { get; set; }
+            public string Salt { get; set; }
         }
     }
 }
