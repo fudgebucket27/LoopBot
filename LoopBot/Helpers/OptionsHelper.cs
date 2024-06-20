@@ -335,37 +335,40 @@ namespace LoopBot.Helpers
 
         public static long ChooseExpirationOption()
         {
-            string[] options = { "an hour", "a day", "7 days", "14 days", "a month" };
+            string[] options = { "in an hour", "in a day", "in 7 days", "in 14 days", "in a month" };
             int selectedIndex = 0;
+            Console.WriteLine("Please choose the expiry date for the listing. Use the up and down arrows, Enter to select:");
+            int topCursorPos = Console.CursorTop; // Store the top cursor position
 
             while (true)
             {
-                Console.Clear();
-                Console.WriteLine("Please choose how long the listing/s is valid for using the up and down arrows, press Enter to select:");
-
+                // Display the options without clearing the entire console
                 for (int i = 0; i < options.Length; i++)
                 {
+                    Console.SetCursorPosition(0, topCursorPos + i); // Move cursor to the correct line
+
                     if (i == selectedIndex)
                     {
                         Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.WriteLine($"> {options[i]}");
+                        Console.WriteLine($"> {options[i]}".PadRight(Console.WindowWidth)); // Clear the line
+                        Console.ResetColor();
                     }
                     else
                     {
-                        Console.WriteLine($"  {options[i]}");
+                        Console.WriteLine($"  {options[i]}".PadRight(Console.WindowWidth)); // Clear the line
                     }
                 }
 
-                var key = Console.ReadKey();
-                if (key.Key == ConsoleKey.UpArrow)
+                var key = Console.ReadKey(true).Key;
+                if (key == ConsoleKey.UpArrow)
                 {
                     selectedIndex = (selectedIndex == 0) ? options.Length - 1 : selectedIndex - 1;
                 }
-                else if (key.Key == ConsoleKey.DownArrow)
+                else if (key == ConsoleKey.DownArrow)
                 {
                     selectedIndex = (selectedIndex == options.Length - 1) ? 0 : selectedIndex + 1;
                 }
-                else if (key.Key == ConsoleKey.Enter)
+                else if (key == ConsoleKey.Enter)
                 {
                     break;
                 }
@@ -373,19 +376,19 @@ namespace LoopBot.Helpers
 
             int expirationInSeconds = options[selectedIndex] switch
             {
-                "an hour" => 3600,
-                "a day" => 86400,
-                "7 days" => 604800,
-                "14 days" => 1209600,
-                "a month" => 2592000,
+                "in an hour" => 3600,
+                "in a day" => 86400,
+                "in 7 days" => 604800,
+                "in 14 days" => 1209600,
+                "in a month" => 2592000,
                 _ => throw new ArgumentOutOfRangeException()
             };
 
             DateTimeOffset now = DateTimeOffset.UtcNow;
             long expirationTimestamp = now.ToUnixTimeSeconds() + expirationInSeconds;
-
             return expirationTimestamp;
         }
+
 
         public static async Task ShowNftOptions(Datum nft, ServiceManager serviceManager, Settings settings)
         {
