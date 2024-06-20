@@ -414,7 +414,7 @@ namespace LoopBot.Helpers
                     Console.WriteLine("Listing successful! Here is your listing link: ");
                     var listingLink = response.Ids.First();
                     Console.WriteLine($"https://loopexchange.art/b/{listingLink}");
-                    Console.WriteLine("\nPress 'e' to continue");
+                    Console.WriteLine("\nPress 'e' to continue...");
                     while (Console.ReadKey(true).Key != ConsoleKey.E)
                     {
                     }
