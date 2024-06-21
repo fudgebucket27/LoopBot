@@ -337,6 +337,20 @@ namespace LoopBot.Models
         /// </summary>
         [JsonProperty("balanceUpdatedAt")]
         public long BalanceUpdatedAt { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Datum other)
+            {
+                return Id == other.Id;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
     }
 
     /// <summary>
