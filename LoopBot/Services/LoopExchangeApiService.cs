@@ -12,8 +12,9 @@ namespace LoopBot.Services
 {
     public class LoopExchangeApiService : IDisposable
     {
-        const string _baseUrl = "https://api.loopexchange.art";
-        readonly RestClient _client;
+        private const string _baseUrl = "https://api.loopexchange.art";
+        private readonly RestClient _client;
+        private static string _token;
 
         public LoopExchangeApiService()
         {
@@ -25,8 +26,8 @@ namespace LoopBot.Services
         {
 
             var request = new RestRequest($"/web-v1/listing/{listingId}");
-
-            var response = await _client.ExecuteAsync<string>(request, Method.Delete);
+            request.AddHeader("authorization", $"Bearer {_token}");
+            var response = await _client.ExecuteAsync<object>(request, Method.Delete);
             if (response.IsSuccessful)
             {
                 return response.Data;
@@ -56,6 +57,7 @@ namespace LoopBot.Services
             var response = await _client.ExecutePostAsync<BearerToken>(request);
             if (response.IsSuccessful)
             {
+                _token = response.Data.AccessToken;
                 return response.Data;
             }
             else

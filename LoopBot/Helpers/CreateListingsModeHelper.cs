@@ -158,7 +158,7 @@ namespace LoopBot.Helpers
                 {
                     var innerValidUntil = 0;
 
-                    Console.WriteLine("Checking for current listings...");
+                    Console.WriteLine($"Checking current listings for, {nft.Metadata.Base.Name}...");
                     var fullNftId = $"{nft.Minter}-0-{nft.TokenAddress}-{nft.NftId}-{nft.RoyaltyPercentage}";
                     var currentListingsResponse = await serviceManager.LoopExchangeWebApiService.GetNftListingsAsync(fullNftId);
                     var listingToDelete = currentListingsResponse.Items.Where(x => x.Maker.ToLower() == settings.LoopringAddress.ToLower()).FirstOrDefault();
@@ -343,7 +343,7 @@ namespace LoopBot.Helpers
             var expirationInSeconds = ChooseExpirationOption();
             try
             {
-                Console.WriteLine("Checking for current listings...");
+                Console.WriteLine($"Checking current listings for, {nft.Metadata.Base.Name}...");
                 var fullNftId = $"{nft.Minter}-0-{nft.TokenAddress}-{nft.NftId}-{nft.RoyaltyPercentage}";
                 var currentListingsResponse = await serviceManager.LoopExchangeWebApiService.GetNftListingsAsync(fullNftId);
                 var listingToDelete = currentListingsResponse.Items.Where(x => x.Maker.ToLower() == settings.LoopringAddress.ToLower()).FirstOrDefault();
