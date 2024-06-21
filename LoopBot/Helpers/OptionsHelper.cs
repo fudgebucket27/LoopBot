@@ -521,13 +521,19 @@ namespace LoopBot.Helpers
                 else
                 {
                     Console.WriteLine("Something went wrong! Try again...");
-                    await Task.Delay(1000);
+                    Console.WriteLine("\nPress 'q' to continue...");
+                    while (Console.ReadKey(true).Key != ConsoleKey.Q)
+                    {
+                    }
                 }
             }
             catch (Exception ex) 
             {
                 Console.WriteLine($"Something went wrong! Try again...{ex.Message}");
-                await Task.Delay(1000);
+                Console.WriteLine("\nPress 'q' to continue...");
+                while (Console.ReadKey(true).Key != ConsoleKey.Q)
+                {
+                }
             }
            
         }
