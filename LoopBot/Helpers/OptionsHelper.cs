@@ -278,7 +278,7 @@ namespace LoopBot.Helpers
                             exitPagination = true;
                             optionSelected = true;
                             break;
-                        case ConsoleKey.Q:
+                        case ConsoleKey.M:
                             var selectedNft = nftBalance.Data[selectedIndex];
                             if (!markedNfts.Contains(selectedNft))
                             {
@@ -293,10 +293,8 @@ namespace LoopBot.Helpers
                         case ConsoleKey.L:
                             if (markedNfts.Count > 0)
                             {
-                                foreach (var nft in markedNfts)
-                                {
-                                    await ShowNftOptions(nft, serviceManager, settings);
-                                }
+                                Console.Clear();
+                                await ShowNftMarkedOptions(markedNfts, serviceManager, settings);
                                 markedNfts.Clear();
                             }
                             else
@@ -317,6 +315,49 @@ namespace LoopBot.Helpers
                     Console.WriteLine($"You selected: {selectedNft.Metadata.Base.Name} - Amount: {selectedNft.Total}");
                     await ShowNftOptions(selectedNft, serviceManager, settings);
                 }
+            }
+        }
+
+        private static async Task ShowNftMarkedOptions(List<Datum> markedNfts, ServiceManager serviceManager, Settings settings)
+        {
+            var amountToSell = 1;
+            var priceToSell = ChoosePriceToSellOption();
+            var expirationInSeconds = ChooseExpirationOption();
+            try
+            {
+                foreach(var nft in markedNfts)
+                {
+                    Console.WriteLine($"Submitting listing for: {nft.Metadata.Base.Name}...");
+                    var storageId = await serviceManager.LoopringApiService.GetNextStorageId(settings.LoopringAccountId, nft.TokenId);
+                    List<(NftOrder order, string eddsaSignature)> makerOrders = new List<(NftOrder, string)>();
+                    for (int i = 0; i < amountToSell; i++)
+                    {
+                        var currentStorageID = storageId.orderId * 2;
+                        var platformFee = 2;
+                        var maxFeeBips = (nft.RoyaltyPercentage.Value + platformFee) * 100;
+                        var makerOrder = await Utils.CreateAndSignNftMakerOrderAsync(settings, nft.TokenId, nft.NftData, Utils.ConvertDecimalToStringRepresentation(priceToSell), currentStorageID, maxFeeBips, expirationInSeconds);
+                        makerOrders.Add(makerOrder);
+                    }
+                    var response = await serviceManager.LoopExchangeWebApiService.SubmitMakerTradeAsync(makerOrders, expirationInSeconds);
+                    if (response != null && response.Ids.Count > 0)
+                    {
+                        Console.WriteLine("\n\nListing successful! Here is your listing link: ");
+                        var listingLink = response.Ids.First();
+                        Console.WriteLine($"https://loopexchange.art/b/{listingLink}");
+                        Console.WriteLine("\nPress 'q' to continue...");
+                        while (Console.ReadKey(true).Key != ConsoleKey.Q)
+                        {
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Something went wrong! Try again...");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Something went wrong! Try again...{ex.Message}");
             }
         }
 
@@ -445,8 +486,8 @@ namespace LoopBot.Helpers
                     Console.WriteLine("Listing successful! Here is your listing link: ");
                     var listingLink = response.Ids.First();
                     Console.WriteLine($"https://loopexchange.art/b/{listingLink}");
-                    Console.WriteLine("\nPress 'e' to continue...");
-                    while (Console.ReadKey(true).Key != ConsoleKey.E)
+                    Console.WriteLine("\nPress 'q' to continue...");
+                    while (Console.ReadKey(true).Key != ConsoleKey.Q)
                     {
                     }
                 }
