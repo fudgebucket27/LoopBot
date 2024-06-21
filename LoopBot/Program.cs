@@ -26,7 +26,7 @@ class Program
         Console.WriteLine(".____                       __________        __   \r\n|    |    ____   ____ ______\\______   \\ _____/  |_ \r\n|    |   /  _ \\ /  _ \\\\____ \\|    |  _//  _ \\   __\\\r\n|    |__(  <_> |  <_> )  |_> >    |   (  <_> )  |  \r\n|_______ \\____/ \\____/|   __/|______  /\\____/|__|  \r\n        \\/            |__|          \\/             "+ $"v{version.ToString().Remove(version.ToString().Length - 2,2)}");
 
         //General Setup
-        var settings = SettingsHelper.GetSettings();
+        var settings = SettingsModeHelper.GetSettings();
         var serviceManager = ServiceManager.Instance;
         var loginStatus = serviceManager.Initialize(settings.LoopringApiKey, settings.LoopringAccountId, settings.LoopringAddress, settings.L1PrivateKey);
 
@@ -78,7 +78,7 @@ class Program
                     await Utils.RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch);
 
                     var collectionModeStopwatch = System.Diagnostics.Stopwatch.StartNew();
-                    nftIsBought = await CollectionMode(serviceManager, settings, collectionInfo.Id, priceToBuyDecimal);
+                    nftIsBought = await MonitorCollectionModeHelper.Run(serviceManager, settings, collectionInfo.Id, priceToBuyDecimal);
                     collectionModeStopwatch.Stop();
 
                     var delay = TimeSpan.FromSeconds(delayInSeconds) - collectionModeStopwatch.Elapsed;
@@ -111,7 +111,7 @@ class Program
                     await Utils.RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch);
 
                     var listingModeStopwatch = System.Diagnostics.Stopwatch.StartNew();
-                    nftIsBought = await ListingMode(serviceManager, settings, nftFullId, priceToBuyDecimal);
+                    nftIsBought = await MonitorListingModeHelper.Run(serviceManager, settings, nftFullId, priceToBuyDecimal);
                     listingModeStopwatch.Stop();
 
                     var delay = TimeSpan.FromSeconds(delayInSeconds) - listingModeStopwatch.Elapsed;
@@ -132,11 +132,11 @@ class Program
             else if(selectedMode == 2 && !cts.Token.IsCancellationRequested)
             {
                 await Utils.RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch);
-                await OptionsHelper.DisplayNftBalanceWithPagination(serviceManager, settings, tokenRefreshStopwatch);
+                await CreateListingsModeHelper.Run(serviceManager, settings, tokenRefreshStopwatch);
             }
             else if (selectedMode == 3)
             {
-                settings = SettingsHelper.ModifyAppSettingsFile();
+                settings = SettingsModeHelper.ModifyAppSettingsFile();
                 await Utils.RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch, true);
             }
             else if (selectedMode == 4)
@@ -148,116 +148,7 @@ class Program
         cts.Dispose();
         Console.WriteLine("Exiting LoopBot in a few seconds...Goodbye!");
         await Task.Delay(TimeSpan.FromSeconds(2));
-    }
-
-
-
-
-
-    static async Task<bool> CollectionMode(ServiceManager serviceManager, Settings settings, int collectionId, decimal priceToBuyDecimal)
-    {
-        //Setup local vars from service class - tiny bit faster
-        var loopExchangeApiService = serviceManager.LoopExchangeApiService;
-        var loopExchangeWebApiService = serviceManager.LoopExchangeWebApiService;
-        var loopringApiService = serviceManager.LoopringApiService;
-
-        try
-        {
-            //Get the NFT details
-            var collectionListings = await loopExchangeWebApiService.GetCollectionListings(collectionId);
-            var nftItem = collectionListings.Items
-                .Where(item => item.Token1PriceDecimal > 0 && item.Token1PriceDecimal <= priceToBuyDecimal)
-                .FirstOrDefault();
-            var nftFullId = nftItem != null ? nftItem.NftUrlId : "";
-            if (!string.IsNullOrEmpty(nftFullId))
-            {
-                Console.WriteLine($"Valid listing found for collection, NFT: '{nftItem.Name}',at price: {nftItem.Token1PriceDecimal} LRC...Attempting to buy...");
-                var nftDetails = await loopExchangeWebApiService.GetNftDetailsAsync(nftFullId);
-                var nftListingDetails = await loopExchangeWebApiService.GetNftListingDetailsAsync(nftFullId);
-                var nftTakerListingDetails = await loopExchangeApiService.GetTakerListingDetailsAsync(nftListingDetails.Id);
-                var listingPriceDecimal = Utils.ConvertStringToDecimal(nftTakerListingDetails.Erc20TokenAmount);
-
-                //Get  fees
-                var orderFee = await loopringApiService.GetOrderFee(settings.LoopringAccountId, nftDetails.TokenAddress, nftTakerListingDetails.Erc20TokenAmount);
-                var takerOrderFee = await loopExchangeApiService.GetTakerFeesAsync(nftListingDetails.Id, settings.LoopringAccountId, nftDetails.TokenAddress, orderFee.FeeRate.Rate, nftTakerListingDetails.Erc20TokenAmount);
-                var storageId = await loopringApiService.GetNextStorageId(settings.LoopringAccountId, 1);
-
-                //Sign the order
-                (NftTakerOrder nftTakerOrder, string takerEddsaSignature, string message, string signedMessage) = await Utils.CreateAndSignNftTakerOrderAsync(settings, nftDetails, nftTakerListingDetails, nftListingDetails, orderFee, storageId, takerOrderFee);
-
-                //Submit the trade
-                var submitTrade = await loopExchangeWebApiService.SubmitTakerTradeAsync(settings.LoopringAccountId, nftListingDetails.Id, nftTakerOrder, takerEddsaSignature, signedMessage);
-                if (submitTrade != null && submitTrade.ToString() == "{}")
-                {
-                    Console.WriteLine($"Bought NFT: '{nftDetails.Name}',at price: {nftItem.Token1PriceDecimal} LRC, successfully! Press any key to go back to the options!");
-                    Console.ReadKey();
-                    return true;
-                }
-                else
-                {
-                    Console.WriteLine("Something went wrong, someone was probably quicker!");
-                    return false;
-                }
-            }
-
-        }
-        catch (Exception ex)
-        {
-            //Console.WriteLine($"Something went wrong: {ex.Message}");
-            return false;
-        }
-        return false;
-    }
-
-    static async Task<bool> ListingMode(ServiceManager serviceManager, Settings settings, string nftFullId, decimal priceToBuyDecimal)
-    {
-        //Setup local vars from service class - tiny bit faster
-        var loopExchangeApiService = serviceManager.LoopExchangeApiService;
-        var loopExchangeWebApiService = serviceManager.LoopExchangeWebApiService;
-        var loopringApiService = serviceManager.LoopringApiService;
-
-        try
-        {
-            //Get the NFT details
-            var nftDetails = await loopExchangeWebApiService.GetNftDetailsAsync(nftFullId);
-            var nftListingDetails = await loopExchangeWebApiService.GetNftListingDetailsAsync(nftFullId);
-            var nftTakerListingDetails = await loopExchangeApiService.GetTakerListingDetailsAsync(nftListingDetails.Id);
-            var listingPriceDecimal = Utils.ConvertStringToDecimal(nftTakerListingDetails.Erc20TokenAmount);
-
-            if (listingPriceDecimal <= priceToBuyDecimal) //NFT has to be under or equal to the price limit
-            {
-                Console.WriteLine($"Valid listing found for NFT: '{nftDetails.Name}',at price: {listingPriceDecimal} LRC...Attempting to buy...");
-                //Get  fees
-                var orderFee = await loopringApiService.GetOrderFee(settings.LoopringAccountId, nftDetails.TokenAddress, nftTakerListingDetails.Erc20TokenAmount);
-                var takerOrderFee = await loopExchangeApiService.GetTakerFeesAsync(nftListingDetails.Id, settings.LoopringAccountId, nftDetails.TokenAddress, orderFee.FeeRate.Rate, nftTakerListingDetails.Erc20TokenAmount);
-                var storageId = await loopringApiService.GetNextStorageId(settings.LoopringAccountId, 1);
-
-                //Sign the order
-                (NftTakerOrder nftTakerOrder, string takerEddsaSignature, string message, string signedMessage) = await Utils.CreateAndSignNftTakerOrderAsync(settings, nftDetails, nftTakerListingDetails, nftListingDetails, orderFee, storageId, takerOrderFee);
-
-                //Submit the trade
-                var submitTrade = await loopExchangeWebApiService.SubmitTakerTradeAsync(settings.LoopringAccountId, nftListingDetails.Id, nftTakerOrder, takerEddsaSignature, signedMessage);
-                if (submitTrade != null && submitTrade.ToString() == "{}")
-                {
-                    Console.WriteLine($"Bought NFT: '{nftDetails.Name}',at price: {listingPriceDecimal} LRC, successfully! Press any key to go back to the options!");
-                    Console.ReadKey();
-                    return true;
-                }
-                else
-                {
-                    Console.WriteLine("Something went wrong, someone was probably quicker!");
-                    return false;
-                }
-            }
-
-        }
-        catch (Exception ex)
-        {
-            //Console.WriteLine($"Something went wrong: {ex.Message}");
-            return false;
-        }
-        return false;
-    }
+    }  
 }
 
 

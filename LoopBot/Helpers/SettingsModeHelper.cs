@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace LoopBot.Helpers
 {
-    public static class SettingsHelper
+    public static class SettingsModeHelper
     {
         public static Settings GetSettings()
         {
