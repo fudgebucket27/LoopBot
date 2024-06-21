@@ -28,7 +28,7 @@ namespace LoopBot.Helpers
                 while (decryptedJson == null)
                 {
                     Console.Write("Enter your password: ");
-                    string encryptionKey = PromptForPassword();
+                    string encryptionKey = PromptForPasswordSensitive();
 
                     try
                     {
@@ -50,6 +50,31 @@ namespace LoopBot.Helpers
 
                 return settings;
             }
+        }
+
+        private static string PromptForPasswordSensitive()
+        {
+            string password = string.Empty;
+            ConsoleKeyInfo key;
+
+            do
+            {
+                key = Console.ReadKey(true);
+
+                // Ignore any key out of printable range
+                if (key.Key != ConsoleKey.Backspace && key.Key != ConsoleKey.Enter)
+                {
+                    password += key.KeyChar;
+                    Console.Write("*");
+                }
+                else if (key.Key == ConsoleKey.Backspace && password.Length > 0)
+                {
+                    password = password.Substring(0, password.Length - 1);
+                    Console.Write("\b \b"); // Erase the last asterisk
+                }
+            } while (key.Key != ConsoleKey.Enter);
+
+            return password;
         }
 
         public static Settings ModifyAppSettingsFile()
