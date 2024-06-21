@@ -9,6 +9,7 @@ https://github.com/fudgebucket27/LoopBot/assets/5258063/461b90cd-1fd9-4282-a55d-
 # Features
 - Monitor a collection for new listings and buy an NFT under a certain price point
 - Monitor a NFT for new listings and buy it under a certain price point.
+- Mass list NFTs
 
 # Install
 Download a release [here](https://github.com/fudgebucket27/LoopBot/releases) for your platform, LoopBot is is available on Windows,macOS and Linux. Unzip the contents after downloading it.
