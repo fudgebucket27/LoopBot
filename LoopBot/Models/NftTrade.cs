@@ -8,9 +8,9 @@ namespace LoopBot.Models
 {
     public class NftTrade
     {
-        public NftOrder maker { get; set; }
+        public NftTakerOrder maker { get; set; }
         public int makerFeeBips { get; set; }
-        public NftOrder taker { get; set; }
+        public NftTakerOrder taker { get; set; }
         public int takerFeeBips { get; set; }
     }
 }

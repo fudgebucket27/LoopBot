@@ -73,7 +73,7 @@ namespace LoopBot.Services
             }
         }
 
-        public async Task<string?> SubmitNftTradeValidateOrder(NftOrder nftOrder, string eddsaSignature)
+        public async Task<string?> SubmitNftTradeValidateTakerOrder(NftTakerOrder nftOrder, string eddsaSignature)
         {
             var request = new RestRequest("api/v3/nft/validateOrder");
             request.AlwaysMultipartFormData = true;
@@ -87,6 +87,34 @@ namespace LoopBot.Services
             request.AddParameter("buyToken.nftData", nftOrder.buyToken.nftData);
             request.AddParameter("allOrNone", "false");
             request.AddParameter("fillAmountBOrS", "true");
+            request.AddParameter("validUntil", nftOrder.validUntil);
+            request.AddParameter("maxFeeBips", nftOrder.maxFeeBips);
+            request.AddParameter("eddsaSignature", eddsaSignature);
+            var response = await _client.ExecutePostAsync<string>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error submitting NFT trade validation to Loopring, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
+        }
+
+        public async Task<string?> SubmitNftTradeValidateMakerOrder(NftMakerOrder nftOrder, string eddsaSignature)
+        {
+            var request = new RestRequest("api/v3/nft/validateOrder");
+            request.AlwaysMultipartFormData = true;
+            request.AddParameter("exchange", nftOrder.exchange);
+            request.AddParameter("accountId", nftOrder.accountId);
+            request.AddParameter("storageId", nftOrder.storageId);
+            request.AddParameter("sellToken.tokenId", nftOrder.sellToken.tokenId);
+            request.AddParameter("sellToken.amount", nftOrder.sellToken.amount);
+            request.AddParameter("sellToken.nftData", nftOrder.sellToken.nftData);
+            request.AddParameter("buyToken.tokenId", nftOrder.buyToken.tokenId);
+            request.AddParameter("buyToken.amount", nftOrder.buyToken.amount);
+            request.AddParameter("allOrNone", "false");
+            request.AddParameter("fillAmountBOrS", "false");
             request.AddParameter("validUntil", nftOrder.validUntil);
             request.AddParameter("maxFeeBips", nftOrder.maxFeeBips);
             request.AddParameter("eddsaSignature", eddsaSignature);

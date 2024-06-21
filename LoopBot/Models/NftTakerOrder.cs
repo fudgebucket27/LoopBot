@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LoopBot.Models
 {
-    public class NftOrder
+    public class NftTakerOrder
     {
         public string exchange { get; set; }
         public int accountId { get; set; }
@@ -18,6 +18,19 @@ namespace LoopBot.Models
         public long validUntil { get; set; }
         public int maxFeeBips { get; set; }
         public string eddsaSignature { get; set; }
+    }
+
+    public class NftMakerOrder
+    {
+        public string exchange { get; set; }
+        public int accountId { get; set; }
+        public int storageId { get; set; }
+        public SellToken sellToken { get; set; }
+        public BuyToken buyToken { get; set; }
+        public bool allOrNone { get; set; }
+        public bool fillAmountBOrS { get; set; }
+        public long validUntil { get; set; }
+        public int maxFeeBips { get; set; }
     }
 
     public class SellToken

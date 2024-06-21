@@ -95,7 +95,7 @@ namespace LoopBot.Services
             }
         }
 
-        public async Task<object?> SubmitTakerTradeAsync(int accountId, string listingId, NftOrder order, string takerOrderEddsaSignature, string signature)
+        public async Task<object?> SubmitTakerTradeAsync(int accountId, string listingId, NftTakerOrder order, string takerOrderEddsaSignature, string signature)
         {
             var request = new RestRequest($"/taker/take-listing/{listingId}");
 
@@ -155,7 +155,7 @@ namespace LoopBot.Services
             }
         }
 
-        public async Task<NftListingResponse?> SubmitMakerTradeAsync(List<(NftOrder makerOrder, string makerOrderEddsaSignature)> makerOrders, long validUntil)
+        public async Task<NftListingResponse?> SubmitMakerTradeAsync(List<(NftMakerOrder makerOrder, string makerOrderEddsaSignature)> makerOrders, long validUntil)
         {
             var request = new RestRequest($"/my-listing");
 

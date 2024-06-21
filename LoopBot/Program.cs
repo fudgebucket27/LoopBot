@@ -183,7 +183,7 @@ class Program
                 var storageId = await loopringApiService.GetNextStorageId(settings.LoopringAccountId, 1);
 
                 //Sign the order
-                (NftOrder nftTakerOrder, string takerEddsaSignature, string message, string signedMessage) = await Utils.CreateAndSignNftTakerOrderAsync(settings, nftDetails, nftTakerListingDetails, nftListingDetails, orderFee, storageId, takerOrderFee);
+                (NftTakerOrder nftTakerOrder, string takerEddsaSignature, string message, string signedMessage) = await Utils.CreateAndSignNftTakerOrderAsync(settings, nftDetails, nftTakerListingDetails, nftListingDetails, orderFee, storageId, takerOrderFee);
 
                 //Submit the trade
                 var submitTrade = await loopExchangeWebApiService.SubmitTakerTradeAsync(settings.LoopringAccountId, nftListingDetails.Id, nftTakerOrder, takerEddsaSignature, signedMessage);
@@ -233,7 +233,7 @@ class Program
                 var storageId = await loopringApiService.GetNextStorageId(settings.LoopringAccountId, 1);
 
                 //Sign the order
-                (NftOrder nftTakerOrder, string takerEddsaSignature, string message, string signedMessage) = await Utils.CreateAndSignNftTakerOrderAsync(settings, nftDetails, nftTakerListingDetails, nftListingDetails, orderFee, storageId, takerOrderFee);
+                (NftTakerOrder nftTakerOrder, string takerEddsaSignature, string message, string signedMessage) = await Utils.CreateAndSignNftTakerOrderAsync(settings, nftDetails, nftTakerListingDetails, nftListingDetails, orderFee, storageId, takerOrderFee);
 
                 //Submit the trade
                 var submitTrade = await loopExchangeWebApiService.SubmitTakerTradeAsync(settings.LoopringAccountId, nftListingDetails.Id, nftTakerOrder, takerEddsaSignature, signedMessage);
