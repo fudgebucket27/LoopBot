@@ -187,6 +187,19 @@ namespace LoopBot.Helpers
             } while (!int.TryParse(input, out delay) || delay < 1);
             return delay;
         }
+
+
+        private static void DisplayTopSection()
+        {
+            Console.WriteLine("Use arrow keys to navigate and press Enter to select an NFT.");
+        }
+
+        private static void DisplayNavigationOptions()
+        {
+            Console.WriteLine("[P]revious Page, [N]ext Page, [M]ark NFT, [L]ist marked NFTs, [E]xit");
+        }
+
+
         public static async Task DisplayNftBalanceWithPagination(ServiceManager serviceManager, Settings settings)
         {
             int offset = 0;
@@ -194,6 +207,7 @@ namespace LoopBot.Helpers
             int selectedIndex = 0;
             int previousIndex = -1;
             ConsoleKey input = ConsoleKey.NoName;
+            var markedNfts = new List<Datum>();
 
             while (!exitPagination)
             {
@@ -212,7 +226,7 @@ namespace LoopBot.Helpers
 
                 Console.Clear();
                 DisplayTopSection();
-                DisplayNftList(nftBalance, offset, selectedIndex);
+                DisplayNftList(nftBalance, offset, selectedIndex, markedNfts);
                 DisplayNavigationOptions();
 
                 bool optionSelected = false;
@@ -226,12 +240,12 @@ namespace LoopBot.Helpers
                         case ConsoleKey.UpArrow:
                             previousIndex = selectedIndex;
                             selectedIndex = (selectedIndex == 0) ? nftBalance.Data.Count - 1 : selectedIndex - 1;
-                            UpdateNftSelection(nftBalance, offset, selectedIndex, previousIndex);
+                            UpdateNftSelection(nftBalance, offset, selectedIndex, previousIndex, markedNfts);
                             break;
                         case ConsoleKey.DownArrow:
                             previousIndex = selectedIndex;
                             selectedIndex = (selectedIndex == nftBalance.Data.Count - 1) ? 0 : selectedIndex + 1;
-                            UpdateNftSelection(nftBalance, offset, selectedIndex, previousIndex);
+                            UpdateNftSelection(nftBalance, offset, selectedIndex, previousIndex, markedNfts);
                             break;
                         case ConsoleKey.Enter:
                             optionSelected = true;
@@ -264,6 +278,32 @@ namespace LoopBot.Helpers
                             exitPagination = true;
                             optionSelected = true;
                             break;
+                        case ConsoleKey.Q:
+                            var selectedNft = nftBalance.Data[selectedIndex];
+                            if (!markedNfts.Contains(selectedNft))
+                            {
+                                markedNfts.Add(selectedNft);
+                            }
+                            else
+                            {
+                                markedNfts.Remove(selectedNft);
+                            }
+                            UpdateNftSelection(nftBalance, offset, selectedIndex, previousIndex, markedNfts);
+                            break;
+                        case ConsoleKey.L:
+                            if (markedNfts.Count > 0)
+                            {
+                                foreach (var nft in markedNfts)
+                                {
+                                    await ShowNftOptions(nft, serviceManager, settings);
+                                }
+                                markedNfts.Clear();
+                            }
+                            else
+                            {
+                                await DisplayErrorMessage("No NFTs marked for listing.");
+                            }
+                            break;
                         default:
                             await DisplayErrorMessage("Invalid input. Please try again.");
                             break;
@@ -280,12 +320,7 @@ namespace LoopBot.Helpers
             }
         }
 
-        private static void DisplayTopSection()
-        {
-            Console.WriteLine("Use arrow keys to navigate and press Enter to select an NFT.");
-        }
-
-        private static void DisplayNftList(NftBalance nftBalance, int offset, int selectedIndex)
+        private static void DisplayNftList(NftBalance nftBalance, int offset, int selectedIndex, List<Datum> markedNfts)
         {
             for (int i = 0; i < nftBalance.Data.Count; i++)
             {
@@ -293,34 +328,30 @@ namespace LoopBot.Helpers
                 if (i == selectedIndex)
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine($"> {i + 1 + offset}. {nft.Metadata.Base.Name}");
+                    Console.WriteLine($"> {i + 1 + offset}. {nft.Metadata.Base.Name} {(markedNfts.Contains(nft) ? "[MARKED]" : "")}".PadRight(Console.WindowWidth));
                     Console.ResetColor();
                 }
                 else
                 {
-                    Console.WriteLine($"{i + 1 + offset}. {nft.Metadata.Base.Name}");
+                    Console.WriteLine($"{i + 1 + offset}. {nft.Metadata.Base.Name} {(markedNfts.Contains(nft) ? "[MARKED]" : "")}".PadRight(Console.WindowWidth));
                 }
             }
         }
 
-        private static void DisplayNavigationOptions()
-        {
-            Console.WriteLine("[P]revious Page, [N]ext Page, [E]xit");
-        }
-
-        private static void UpdateNftSelection(NftBalance nftBalance, int offset, int selectedIndex, int previousIndex)
+ 
+        private static void UpdateNftSelection(NftBalance nftBalance, int offset, int selectedIndex, int previousIndex, List<Datum> markedNfts)
         {
             if (previousIndex != -1)
             {
                 Console.SetCursorPosition(0, previousIndex + 1); // Adjust 1 to match the number of lines before the NFT list
                 var previousNft = nftBalance.Data[previousIndex];
-                Console.WriteLine($"{previousIndex + 1 + offset}. {previousNft.Metadata.Base.Name}    "); // Extra spaces to overwrite previous text
+                Console.WriteLine($"{previousIndex + 1 + offset}. {previousNft.Metadata.Base.Name} {(markedNfts.Contains(previousNft) ? "[MARKED]" : "")}".PadRight(Console.WindowWidth)); // Extra spaces to overwrite previous text
             }
 
             Console.SetCursorPosition(0, selectedIndex + 1); // Adjust 1 to match the number of lines before the NFT list
             var selectedNft = nftBalance.Data[selectedIndex];
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"> {selectedIndex + 1 + offset}. {selectedNft.Metadata.Base.Name}    "); // Extra spaces to overwrite previous text
+            Console.WriteLine($"> {selectedIndex + 1 + offset}. {selectedNft.Metadata.Base.Name} {(markedNfts.Contains(selectedNft) ? "[MARKED]" : "")}".PadRight(Console.WindowWidth)); // Extra spaces to overwrite previous text
             Console.ResetColor();
         }
 
