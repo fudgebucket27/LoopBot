@@ -207,7 +207,7 @@ namespace LoopBot.Helpers
             int selectedIndex = 0;
             int previousIndex = -1;
             ConsoleKey input = ConsoleKey.NoName;
-            var markedNfts = new List<Datum>();
+            var markedNfts = new HashSet<Datum>();
 
             while (!exitPagination)
             {
@@ -226,7 +226,7 @@ namespace LoopBot.Helpers
 
                 Console.Clear();
                 DisplayTopSection();
-                DisplayNftList(nftBalance, offset, selectedIndex, markedNfts);
+                DisplayNftList(nftBalance, offset, selectedIndex, markedNfts.ToList());
                 DisplayNavigationOptions();
 
                 bool optionSelected = false;
@@ -240,12 +240,12 @@ namespace LoopBot.Helpers
                         case ConsoleKey.UpArrow:
                             previousIndex = selectedIndex;
                             selectedIndex = (selectedIndex == 0) ? nftBalance.Data.Count - 1 : selectedIndex - 1;
-                            UpdateNftSelection(nftBalance, offset, selectedIndex, previousIndex, markedNfts);
+                            UpdateNftSelection(nftBalance, offset, selectedIndex, previousIndex, markedNfts.ToList());
                             break;
                         case ConsoleKey.DownArrow:
                             previousIndex = selectedIndex;
                             selectedIndex = (selectedIndex == nftBalance.Data.Count - 1) ? 0 : selectedIndex + 1;
-                            UpdateNftSelection(nftBalance, offset, selectedIndex, previousIndex, markedNfts);
+                            UpdateNftSelection(nftBalance, offset, selectedIndex, previousIndex, markedNfts.ToList());
                             break;
                         case ConsoleKey.Enter:
                             optionSelected = true;
@@ -280,27 +280,23 @@ namespace LoopBot.Helpers
                             break;
                         case ConsoleKey.M:
                             var selectedNft = nftBalance.Data[selectedIndex];
-                            if (!markedNfts.Contains(selectedNft))
-                            {
-                                markedNfts.Add(selectedNft);
-                            }
-                            else
+                            if (!markedNfts.Add(selectedNft))
                             {
                                 markedNfts.Remove(selectedNft);
                             }
-                            UpdateNftSelection(nftBalance, offset, selectedIndex, previousIndex, markedNfts);
+                            UpdateNftSelection(nftBalance, offset, selectedIndex, previousIndex, markedNfts.ToList());
                             break;
                         case ConsoleKey.L:
                             if (markedNfts.Count > 0)
                             {
                                 Console.Clear();
                                 await Utils.RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch);
-                                await ShowNftMarkedOptions(markedNfts, serviceManager, settings);
+                                await ShowNftMarkedOptions(markedNfts.ToList(), serviceManager, settings);
                                 markedNfts.Clear();
                                 // Ensure redisplay of the main options after marking process
                                 Console.Clear();
                                 DisplayTopSection();
-                                DisplayNftList(nftBalance, offset, selectedIndex, markedNfts);
+                                DisplayNftList(nftBalance, offset, selectedIndex, markedNfts.ToList());
                                 DisplayNavigationOptions();
                             }
                             else
@@ -390,12 +386,12 @@ namespace LoopBot.Helpers
                 if (i == selectedIndex)
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine($"> {i + 1 + offset}. {nft.Metadata.Base.Name} {(markedNfts.Any(m => m.Id == nft.Id) ? "[MARKED]" : "")}".PadRight(200));
+                    Console.WriteLine($"> {i + 1 + offset}. {nft.Metadata.Base.Name} {(markedNfts.Any(m => m.Id == nft.Id) ? "[MARKED]" : "")}".PadRight(100));
                     Console.ResetColor();
                 }
                 else
                 {
-                    Console.WriteLine($"{i + 1 + offset}. {nft.Metadata.Base.Name} {(markedNfts.Any(m => m.Id == nft.Id) ? "[MARKED]" : "")}".PadRight(200));
+                    Console.WriteLine($"{i + 1 + offset}. {nft.Metadata.Base.Name} {(markedNfts.Any(m => m.Id == nft.Id) ? "[MARKED]" : "")}".PadRight(100));
                 }
             }
         }
@@ -406,13 +402,13 @@ namespace LoopBot.Helpers
             {
                 Console.SetCursorPosition(0, previousIndex + 1); // Adjust 1 to match the number of lines before the NFT list
                 var previousNft = nftBalance.Data[previousIndex];
-                Console.WriteLine($"{previousIndex + 1 + offset}. {previousNft.Metadata.Base.Name} {(markedNfts.Any(m => m.Id == previousNft.Id) ? "[MARKED]" : "")}".PadRight(200)); // Extra spaces to overwrite previous text
+                Console.WriteLine($"{previousIndex + 1 + offset}. {previousNft.Metadata.Base.Name} {(markedNfts.Any(m => m.Id == previousNft.Id) ? "[MARKED]" : "")}".PadRight(100)); // Extra spaces to overwrite previous text
             }
 
             Console.SetCursorPosition(0, selectedIndex + 1); // Adjust 1 to match the number of lines before the NFT list
             var selectedNft = nftBalance.Data[selectedIndex];
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"> {selectedIndex + 1 + offset}. {selectedNft.Metadata.Base.Name} {(markedNfts.Any(m => m.Id == selectedNft.Id) ? "[MARKED]" : "")}".PadRight(200)); // Extra spaces to overwrite previous text
+            Console.WriteLine($"> {selectedIndex + 1 + offset}. {selectedNft.Metadata.Base.Name} {(markedNfts.Any(m => m.Id == selectedNft.Id) ? "[MARKED]" : "")}".PadRight(100)); // Extra spaces to overwrite previous text
             Console.ResetColor();
         }
 
