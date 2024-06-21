@@ -151,11 +151,35 @@ namespace LoopBot.Helpers
             var amountToSell = 1;
             var priceToSell = OptionsHelper.ChoosePriceToSellOption();
             var expirationInSeconds = ChooseExpirationOption();
-            var innerValidUntil = 0;
+            
             foreach (var nft in markedNfts)
             {
                 try
                 {
+                    var innerValidUntil = 0;
+
+                    Console.WriteLine($"Checking current listings for, {nft.Metadata.Base.Name}...");
+                    var fullNftId = $"{nft.Minter}-0-{nft.TokenAddress}-{nft.NftId}-{nft.RoyaltyPercentage}";
+                    var currentListingsResponse = await serviceManager.LoopExchangeWebApiService.GetNftListingsAsync(fullNftId);
+                    var listingToDelete = currentListingsResponse.Items.Where(x => x.Maker.ToLower() == settings.LoopringAddress.ToLower()).FirstOrDefault();
+                    if (listingToDelete == null)
+                    {
+                        Console.WriteLine("No current listings...");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Deleting listing...");
+                        var deleteResponse = await serviceManager.LoopExchangeApiService.DeleteListing(listingToDelete.Id);
+                        if (deleteResponse != null && deleteResponse.ToString() == "{}")
+                        {
+                            Console.WriteLine("Listing deleted...");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Something went wrong when trying to delete listing...");
+                        }
+                    }
+
                     DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(expirationInSeconds);
                     DateTimeOffset newDateTimeOffset = dateTimeOffset.AddDays(15).AddSeconds(-1).AddSeconds(innerValidUntil);
                     long orderValidUntil = newDateTimeOffset.ToUnixTimeSeconds();
@@ -319,7 +343,29 @@ namespace LoopBot.Helpers
             var expirationInSeconds = ChooseExpirationOption();
             try
             {
-                Console.WriteLine("Submitting listing...");
+                Console.WriteLine($"Checking current listings for, {nft.Metadata.Base.Name}...");
+                var fullNftId = $"{nft.Minter}-0-{nft.TokenAddress}-{nft.NftId}-{nft.RoyaltyPercentage}";
+                var currentListingsResponse = await serviceManager.LoopExchangeWebApiService.GetNftListingsAsync(fullNftId);
+                var listingToDelete = currentListingsResponse.Items.Where(x => x.Maker.ToLower() == settings.LoopringAddress.ToLower()).FirstOrDefault();
+                if(listingToDelete == null)
+                {
+                    Console.WriteLine("No current listings...");
+                }
+                else
+                {
+                    Console.WriteLine("Deleting listing...");
+                    var deleteResponse = await serviceManager.LoopExchangeApiService.DeleteListing(listingToDelete.Id);
+                    if(deleteResponse != null && deleteResponse.ToString() == "{}")
+                    {
+                        Console.WriteLine("Listing deleted...");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Something went wrong when trying to delete listing...");
+                    }
+                }
+
+                    Console.WriteLine("Submitting listing...");
                 var storageId = await serviceManager.LoopringApiService.GetNextStorageId(settings.LoopringAccountId, nft.TokenId);
                 List<(NftMakerOrder order, string eddsaSignature)> makerOrders = new List<(NftMakerOrder, string)>();
                 var innerValidUntil = 0;

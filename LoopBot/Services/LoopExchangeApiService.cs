@@ -12,13 +12,30 @@ namespace LoopBot.Services
 {
     public class LoopExchangeApiService : IDisposable
     {
-        const string _baseUrl = "https://api.loopexchange.art";
-        readonly RestClient _client;
+        private const string _baseUrl = "https://api.loopexchange.art";
+        private readonly RestClient _client;
+        private static string _token;
 
         public LoopExchangeApiService()
         {
             _client = new RestClient(_baseUrl);
             _client.AddDefaultHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0");
+        }
+
+        public async Task<object?> DeleteListing(string listingId)
+        {
+
+            var request = new RestRequest($"/web-v1/listing/{listingId}");
+            request.AddHeader("authorization", $"Bearer {_token}");
+            var response = await _client.ExecuteAsync<object>(request, Method.Delete);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error deleting listing from LoopExchange, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
         }
 
         public async Task<BearerToken?> LoginAsync(int accountId, string address, string l1PrivateKey)
@@ -40,6 +57,7 @@ namespace LoopBot.Services
             var response = await _client.ExecutePostAsync<BearerToken>(request);
             if (response.IsSuccessful)
             {
+                _token = response.Data.AccessToken;
                 return response.Data;
             }
             else
