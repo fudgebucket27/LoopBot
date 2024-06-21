@@ -1,7 +1,7 @@
 ![image](https://github.com/fudgebucket27/LoopBot/assets/5258063/02d482ae-d6b8-4d42-8dd8-a87d855b15d5)
 
 # What is this?
-A simple bot that will buy NFTs from Loopring NFT marketplaces.  
+A simple bot that is able to interface with various Loopring NFT marketplaces.
 
 # Demo
 https://github.com/fudgebucket27/LoopBot/assets/5258063/461b90cd-1fd9-4282-a55d-355ef5d01e80
