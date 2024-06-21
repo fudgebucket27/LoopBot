@@ -320,6 +320,11 @@ namespace LoopBot.Helpers
 
         private static async Task ShowNftMarkedOptions(List<Datum> markedNfts, ServiceManager serviceManager, Settings settings)
         {
+            Console.WriteLine("You have marked the following NFTs for listing:");
+            foreach(var nft in markedNfts)
+            {
+                Console.WriteLine(nft.Metadata.Base.Name);
+            }
             var amountToSell = 1;
             var priceToSell = ChoosePriceToSellOption();
             var expirationInSeconds = ChooseExpirationOption();
@@ -356,7 +361,7 @@ namespace LoopBot.Helpers
             {
                 Console.WriteLine($"Something went wrong! Try again...{ex.Message}");
             }
-            Console.WriteLine("\nPress 'q' to continue...");
+            Console.WriteLine("\nListing complete! Press 'q' to continue...");
             while (Console.ReadKey(true).Key != ConsoleKey.Q)
             {
             }
@@ -462,7 +467,6 @@ namespace LoopBot.Helpers
             return expirationTimestamp;
         }
 
-
         public static async Task ShowNftOptions(Datum nft, ServiceManager serviceManager, Settings settings)
         {
             var amountToSell = ChooseAmountToSellOption(Int32.Parse(nft.Total));
@@ -487,7 +491,7 @@ namespace LoopBot.Helpers
                     Console.WriteLine("Listing successful! Here is your listing link: ");
                     var listingLink = response.Ids.First();
                     Console.WriteLine($"https://loopexchange.art/b/{listingLink}");
-                    Console.WriteLine("\nPress 'q' to continue...");
+                    Console.WriteLine("\nListing complete! Press 'q' to continue...");
                     while (Console.ReadKey(true).Key != ConsoleKey.Q)
                     {
                     }
