@@ -162,16 +162,18 @@ namespace LoopBot.Helpers
                     innerValidUntil++;
                     Console.WriteLine($"Submitting listing for: {nft.Metadata.Base.Name}...");
                     var storageId = await serviceManager.LoopringApiService.GetNextStorageId(settings.LoopringAccountId, nft.TokenId);
-
+                    var currentStorageID = storageId.orderId;
                     List<(NftMakerOrder order, string eddsaSignature)> makerOrders = new List<(NftMakerOrder, string)>();
                     for (int i = 0; i < amountToSell; i++)
                     {
-                        var currentStorageID = storageId.orderId * 2;
+                        currentStorageID = CalculateStorageId(currentStorageID);
                         var platformFee = 2;
                         var maxFeeBips = (nft.RoyaltyPercentage.Value + platformFee) * 100;
                         (NftMakerOrder makerOrder, string signature) = await Utils.CreateAndSignNftMakerOrderAsync(settings, nft.TokenId, nft.NftData, Utils.ConvertDecimalToStringRepresentation(priceToSell), currentStorageID, maxFeeBips, settings.LoopringAddress, orderValidUntil);
                         makerOrders.Add((makerOrder, signature));
                         var loopringResponse = await serviceManager.LoopringApiService.SubmitNftTradeValidateMakerOrder(makerOrder, signature);
+                        currentStorageID++;
+
                     }
                     var response = await serviceManager.LoopExchangeWebApiService.SubmitMakerTradeAsync(makerOrders, expirationInSeconds);
                     if (response != null && response.Ids.Count > 0)
@@ -298,6 +300,18 @@ namespace LoopBot.Helpers
             return expirationTimestamp;
         }
 
+        static int CalculateStorageId(int value)
+        {
+            if (value % 2 == 0)
+            {
+                return value;
+            }
+            else
+            {
+                return value + 1;
+            }
+        }
+
         public static async Task ShowNftOptions(Datum nft, ServiceManager serviceManager, Settings settings)
         {
             var amountToSell = OptionsHelper.ChooseAmountToSellOption(Int32.Parse(nft.Total));
@@ -309,19 +323,21 @@ namespace LoopBot.Helpers
                 var storageId = await serviceManager.LoopringApiService.GetNextStorageId(settings.LoopringAccountId, nft.TokenId);
                 List<(NftMakerOrder order, string eddsaSignature)> makerOrders = new List<(NftMakerOrder, string)>();
                 var innerValidUntil = 0;
+                var currentStorageID = storageId.orderId;
                 for (int i = 0; i < amountToSell; i++)
                 {
                     DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(expirationInSeconds);
                     DateTimeOffset newDateTimeOffset = dateTimeOffset.AddDays(15).AddSeconds(-1).AddSeconds(innerValidUntil);
                     long orderValidUntil = newDateTimeOffset.ToUnixTimeSeconds();
 
-                    var currentStorageID = storageId.orderId * 2;
+                    currentStorageID = CalculateStorageId(currentStorageID);
                     var platformFee = 2;
                     var maxFeeBips = (nft.RoyaltyPercentage.Value + platformFee) * 100;
                     (NftMakerOrder makerOrder, string signature) = await Utils.CreateAndSignNftMakerOrderAsync(settings, nft.TokenId, nft.NftData, Utils.ConvertDecimalToStringRepresentation(priceToSell), currentStorageID, maxFeeBips, settings.LoopringAddress, orderValidUntil);
                     makerOrders.Add((makerOrder, signature));
                     innerValidUntil++;
                     var loopringResponse = await serviceManager.LoopringApiService.SubmitNftTradeValidateMakerOrder(makerOrder, signature);
+                    currentStorageID++;
                 }
                 var loopexResponse = await serviceManager.LoopExchangeWebApiService.SubmitMakerTradeAsync(makerOrders, expirationInSeconds);
                 if (loopexResponse != null && loopexResponse.Ids.Count > 0)
