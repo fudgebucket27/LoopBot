@@ -75,7 +75,7 @@ class Program
 
                 do
                 {
-                    await RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch);
+                    await Utils.RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch);
 
                     var collectionModeStopwatch = System.Diagnostics.Stopwatch.StartNew();
                     nftIsBought = await CollectionMode(serviceManager, settings, collectionInfo.Id, priceToBuyDecimal);
@@ -108,7 +108,7 @@ class Program
 
                 do
                 {
-                    await RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch);
+                    await Utils.RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch);
 
                     var listingModeStopwatch = System.Diagnostics.Stopwatch.StartNew();
                     nftIsBought = await ListingMode(serviceManager, settings, nftFullId, priceToBuyDecimal);
@@ -131,13 +131,13 @@ class Program
             }
             else if(selectedMode == 2 && !cts.Token.IsCancellationRequested)
             {
-                await RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch);
-                await OptionsHelper.DisplayNftBalanceWithPagination(serviceManager, settings);
+                await Utils.RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch);
+                await OptionsHelper.DisplayNftBalanceWithPagination(serviceManager, settings, tokenRefreshStopwatch);
             }
             else if (selectedMode == 3)
             {
                 settings = SettingsHelper.ModifyAppSettingsFile();
-                await RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch, true);
+                await Utils.RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch, true);
             }
             else if (selectedMode == 4)
             {
@@ -151,24 +151,7 @@ class Program
     }
 
 
-    static async Task RefreshTokenIfNeeded(ServiceManager serviceManager, Settings settings, System.Diagnostics.Stopwatch tokenRefreshStopwatch, bool appsettingsChanged = false)
-    {
-        if (tokenRefreshStopwatch.Elapsed >= TimeSpan.FromMinutes(5) || appsettingsChanged == true)
-        {
-            // Refresh the token every 5 minutes
-            try
-            {
-                var newToken = await serviceManager.LoopExchangeApiService.LoginAsync(settings.LoopringAccountId, settings.LoopringAddress, settings.L1PrivateKey);
-                serviceManager.LoopExchangeWebApiService.UpdateAuthorizationHeader(newToken.AccessToken);
-            }
-            catch (Exception ex)
-            {
 
-            }
-            // Reset the stopwatch
-            tokenRefreshStopwatch.Restart();
-        }
-    }
 
 
     static async Task<bool> CollectionMode(ServiceManager serviceManager, Settings settings, int collectionId, decimal priceToBuyDecimal)

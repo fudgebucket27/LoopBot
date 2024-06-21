@@ -196,5 +196,24 @@ namespace LoopBot.Helpers
             return (nftMakerOrder, makerEddsaSignature);
         }
 
+        public static async Task RefreshTokenIfNeeded(ServiceManager serviceManager, Settings settings, System.Diagnostics.Stopwatch tokenRefreshStopwatch, bool appsettingsChanged = false)
+        {
+            if (tokenRefreshStopwatch.Elapsed >= TimeSpan.FromMinutes(5) || appsettingsChanged == true)
+            {
+                // Refresh the token every 5 minutes
+                try
+                {
+                    var newToken = await serviceManager.LoopExchangeApiService.LoginAsync(settings.LoopringAccountId, settings.LoopringAddress, settings.L1PrivateKey);
+                    serviceManager.LoopExchangeWebApiService.UpdateAuthorizationHeader(newToken.AccessToken);
+                }
+                catch (Exception ex)
+                {
+
+                }
+                // Reset the stopwatch
+                tokenRefreshStopwatch.Restart();
+            }
+        }
+
     }
 }

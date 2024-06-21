@@ -200,7 +200,7 @@ namespace LoopBot.Helpers
         }
 
 
-        public static async Task DisplayNftBalanceWithPagination(ServiceManager serviceManager, Settings settings)
+        public static async Task DisplayNftBalanceWithPagination(ServiceManager serviceManager, Settings settings, System.Diagnostics.Stopwatch tokenRefreshStopwatch)
         {
             int offset = 0;
             bool exitPagination = false;
@@ -294,6 +294,7 @@ namespace LoopBot.Helpers
                             if (markedNfts.Count > 0)
                             {
                                 Console.Clear();
+                                await Utils.RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch);
                                 await ShowNftMarkedOptions(markedNfts, serviceManager, settings);
                                 markedNfts.Clear();
                                 // Ensure redisplay of the main options after marking process
@@ -318,6 +319,7 @@ namespace LoopBot.Helpers
                     Console.Clear();
                     var selectedNft = nftBalance.Data[selectedIndex];
                     Console.WriteLine($"You selected: {selectedNft.Metadata.Base.Name} - Amount: {selectedNft.Total}");
+                    await Utils.RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch);
                     await ShowNftOptions(selectedNft, serviceManager, settings);
                 }
             }
