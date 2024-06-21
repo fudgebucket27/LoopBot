@@ -138,6 +138,7 @@ namespace LoopBot.Helpers
          string priceToSellAmount,
          int storageId,
          int maxFeeBips,
+         string makerAddress,
          long validUntil
          )
         {
@@ -160,7 +161,7 @@ namespace LoopBot.Helpers
                     amount = priceToSellAmount
                 },
                 allOrNone = false,
-                fillAmountBOrS = true,
+                fillAmountBOrS = false,
                 validUntil = validUntil,
                 maxFeeBips = maxFeeBips
             };

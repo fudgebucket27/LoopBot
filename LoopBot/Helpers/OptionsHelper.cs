@@ -353,8 +353,9 @@ namespace LoopBot.Helpers
                         var currentStorageID = storageId.orderId * 2;
                         var platformFee = 2;
                         var maxFeeBips = (nft.RoyaltyPercentage.Value + platformFee) * 100;
-                        var makerOrder = await Utils.CreateAndSignNftMakerOrderAsync(settings, nft.TokenId, nft.NftData, Utils.ConvertDecimalToStringRepresentation(priceToSell), currentStorageID, maxFeeBips, orderValidUntil);
-                        makerOrders.Add(makerOrder);
+                        (NftMakerOrder makerOrder, string signature) = await Utils.CreateAndSignNftMakerOrderAsync(settings, nft.TokenId, nft.NftData, Utils.ConvertDecimalToStringRepresentation(priceToSell), currentStorageID, maxFeeBips, settings.LoopringAddress, orderValidUntil);
+                        makerOrders.Add((makerOrder, signature));
+                        var loopringResponse = await serviceManager.LoopringApiService.SubmitNftTradeValidateMakerOrder(makerOrder, signature);
                     }
                     var response = await serviceManager.LoopExchangeWebApiService.SubmitMakerTradeAsync(makerOrders, expirationInSeconds);
                     if (response != null && response.Ids.Count > 0)
@@ -501,15 +502,16 @@ namespace LoopBot.Helpers
                     var currentStorageID = storageId.orderId * 2;
                     var platformFee = 2;
                     var maxFeeBips = (nft.RoyaltyPercentage.Value + platformFee) * 100;
-                    var makerOrder = await Utils.CreateAndSignNftMakerOrderAsync(settings, nft.TokenId, nft.NftData, Utils.ConvertDecimalToStringRepresentation(priceToSell), currentStorageID, maxFeeBips, orderValidUntil);
-                    makerOrders.Add(makerOrder);
+                    (NftMakerOrder makerOrder,string signature) = await Utils.CreateAndSignNftMakerOrderAsync(settings, nft.TokenId, nft.NftData, Utils.ConvertDecimalToStringRepresentation(priceToSell), currentStorageID, maxFeeBips, settings.LoopringAddress, orderValidUntil);
+                    makerOrders.Add((makerOrder, signature));
                     innerValidUntil++;
-                }
-                var response = await serviceManager.LoopExchangeWebApiService.SubmitMakerTradeAsync(makerOrders, expirationInSeconds);
-                if (response != null && response.Ids.Count > 0)
+                    var loopringResponse = await serviceManager.LoopringApiService.SubmitNftTradeValidateMakerOrder(makerOrder, signature);
+                }   
+                var loopexResponse = await serviceManager.LoopExchangeWebApiService.SubmitMakerTradeAsync(makerOrders, expirationInSeconds);
+                if (loopexResponse != null && loopexResponse.Ids.Count > 0)
                 {
                     Console.WriteLine("Listing successful! Here is your listing link: ");
-                    var listingLink = response.Ids.First();
+                    var listingLink = loopexResponse.Ids.First();
                     Console.WriteLine($"https://loopexchange.art/b/{listingLink}");
                     Console.WriteLine("\nListing complete! Press 'q' to continue...");
                     while (Console.ReadKey(true).Key != ConsoleKey.Q)
