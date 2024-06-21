@@ -58,12 +58,19 @@ namespace LoopBot.Helpers
             }
         }
 
-        public static async Task<(NftOrder, string, string, string)> CreateAndSignNftTakerOrderAsync(Settings settings, NftDetails nftDetails, TakerListingDetails nftTakerListingDetails, ListingDetails nftListingDetails, NftOrderFee orderFee, StorageId storageId, TakerFee takerOrderFee)
+        public static async Task<(NftOrder, string, string, string)> CreateAndSignNftTakerOrderAsync(
+            Settings settings,
+            NftDetails nftDetails,
+            TakerListingDetails nftTakerListingDetails,
+            ListingDetails nftListingDetails,
+            NftOrderFee orderFee,
+            StorageId storageId,
+            TakerFee takerOrderFee)
         {
             int nftTokenId = nftTakerListingDetails.NftTokenId;
             string nftData = nftTakerListingDetails.NftTokenData;
 
-            //Creating the nft taker order
+            // Creating the NFT taker order
             NftOrder nftTakerOrder = new NftOrder()
             {
                 exchange = settings.Exchange,
@@ -89,35 +96,124 @@ namespace LoopBot.Helpers
             int fillAmountBOrSValue2 = nftTakerOrder.fillAmountBOrS ? 1 : 0;
 
             BigInteger[] poseidonTakerOrderInputs =
-            {
+                    {
                 Utils.ParseHexUnsigned(settings.Exchange),
-                (BigInteger) nftTakerOrder.storageId,
-                (BigInteger) nftTakerOrder.accountId,
-                (BigInteger) nftTakerOrder.sellToken.tokenId,
-                !String.IsNullOrEmpty(nftTakerOrder.buyToken.nftData) ? Utils.ParseHexUnsigned(nftTakerOrder.buyToken.nftData) : (BigInteger) nftTakerOrder.buyToken.tokenId ,
-                !String.IsNullOrEmpty(nftTakerOrder.sellToken.amount) ? BigInteger.Parse(nftTakerOrder.sellToken.amount) : (BigInteger) 0,
-                !String.IsNullOrEmpty(nftTakerOrder.buyToken.amount) ? BigInteger.Parse(nftTakerOrder.buyToken.amount) : (BigInteger) 0,
-                (BigInteger) nftTakerOrder.validUntil,
-                (BigInteger) nftTakerOrder.maxFeeBips,
-                (BigInteger) fillAmountBOrSValue2,
+                (BigInteger)nftTakerOrder.storageId,
+                (BigInteger)nftTakerOrder.accountId,
+                (BigInteger)nftTakerOrder.sellToken.tokenId,
+                !string.IsNullOrEmpty(nftTakerOrder.buyToken.nftData) ? Utils.ParseHexUnsigned(nftTakerOrder.buyToken.nftData) : (BigInteger)nftTakerOrder.buyToken.tokenId,
+                !string.IsNullOrEmpty(nftTakerOrder.sellToken.amount) ? BigInteger.Parse(nftTakerOrder.sellToken.amount) : BigInteger.Zero,
+                !string.IsNullOrEmpty(nftTakerOrder.buyToken.amount) ? BigInteger.Parse(nftTakerOrder.buyToken.amount) : BigInteger.Zero,
+                (BigInteger)nftTakerOrder.validUntil,
+                (BigInteger)nftTakerOrder.maxFeeBips,
+                (BigInteger)fillAmountBOrSValue2,
                 Utils.ParseHexUnsigned("0x0000000000000000000000000000000000000000")
-             };
+            };
 
-            //Generate the poseidon hash
+            // Generate the Poseidon hash asynchronously
             Poseidon poseidon2 = new Poseidon(12, 6, 53, "poseidon", 5, _securityTarget: 128);
-            BigInteger takerOrderPoseidonHash = poseidon2.CalculatePoseidonHash(poseidonTakerOrderInputs);
+            BigInteger takerOrderPoseidonHash = await Task.Run(() => poseidon2.CalculatePoseidonHash(poseidonTakerOrderInputs));
 
-            //Generate the signatures
+            // Generate the signatures asynchronously
             Eddsa eddsa2 = new Eddsa(takerOrderPoseidonHash, settings.LoopringPrivateKey);
-            string takerEddsaSignature = eddsa2.Sign();
+            string takerEddsaSignature = await Task.Run(() => eddsa2.Sign());
+
             nftTakerOrder.eddsaSignature = takerEddsaSignature;
-            //var nftTakerTradeValidateResponse = await loopringApiService.SubmitNftTradeValidateOrder(nftTakerOrder, takerEddsaSignature);
+
+            // Constructing the message to sign
             var message = $"Sign this message to complete transaction\n\n{nftDetails.Name}\nQuantity: 1\nPrice: {takerOrderFee.Eth} LRC\nMaximum fees: {takerOrderFee.Fee} LRC\nSold by: {nftListingDetails.Maker}\nNFT data: {nftData}";
             var l1Key = new EthECKey(settings.L1PrivateKey);
             var signer = new EthereumMessageSigner();
-            var signedMessage = signer.EncodeUTF8AndSign(message, l1Key);
+
+            // Signing the message asynchronously
+            string signedMessage = await Task.Run(() => signer.EncodeUTF8AndSign(message, l1Key));
 
             return (nftTakerOrder, takerEddsaSignature, message, signedMessage);
         }
+
+        public static async Task<(NftOrder, string)> CreateAndSignNftMakerOrderAsync(
+         Settings settings,
+         int nftTokenId,
+         string nftData,
+         string priceToSellAmount,
+         int storageId,
+         int maxFeeBips,
+         long validUntil
+         )
+        {
+            // Creating the NFT maker order
+            NftOrder nftMakerOrder = new NftOrder()
+            {
+                exchange = settings.Exchange,
+                accountId = settings.LoopringAccountId,
+                storageId = storageId,
+                sellToken = new SellToken
+                {
+                    tokenId = nftTokenId,
+                    nftData = nftData,
+                    amount = "1"
+                    
+                },
+                buyToken = new BuyToken
+                {
+                    tokenId = 1, //LRC
+                    amount = priceToSellAmount
+                },
+                allOrNone = false,
+                fillAmountBOrS = true,
+                validUntil = validUntil,
+                maxFeeBips = maxFeeBips
+            };
+
+            int fillAmountBOrSValue2 = nftMakerOrder.fillAmountBOrS ? 1 : 0;
+
+            BigInteger[] poseidonTakerOrderInputs =
+                    {
+                Utils.ParseHexUnsigned(settings.Exchange),
+                (BigInteger)nftMakerOrder.storageId,
+                (BigInteger)nftMakerOrder.accountId,
+                (BigInteger)nftMakerOrder.sellToken.tokenId,
+                !string.IsNullOrEmpty(nftMakerOrder.buyToken.nftData) ? Utils.ParseHexUnsigned(nftMakerOrder.buyToken.nftData) : (BigInteger)nftMakerOrder.buyToken.tokenId,
+                !string.IsNullOrEmpty(nftMakerOrder.sellToken.amount) ? BigInteger.Parse(nftMakerOrder.sellToken.amount) : BigInteger.Zero,
+                !string.IsNullOrEmpty(nftMakerOrder.buyToken.amount) ? BigInteger.Parse(nftMakerOrder.buyToken.amount) : BigInteger.Zero,
+                (BigInteger)nftMakerOrder.validUntil,
+                (BigInteger)nftMakerOrder.maxFeeBips,
+                (BigInteger)fillAmountBOrSValue2,
+                Utils.ParseHexUnsigned("0x0000000000000000000000000000000000000000")
+            };
+
+            // Generate the Poseidon hash asynchronously
+            Poseidon poseidon2 = new Poseidon(12, 6, 53, "poseidon", 5, _securityTarget: 128);
+            BigInteger takerOrderPoseidonHash = await Task.Run(() => poseidon2.CalculatePoseidonHash(poseidonTakerOrderInputs));
+
+            // Generate the signatures asynchronously
+            Eddsa eddsa2 = new Eddsa(takerOrderPoseidonHash, settings.LoopringPrivateKey);
+            string makerEddsaSignature = await Task.Run(() => eddsa2.Sign());
+
+            nftMakerOrder.eddsaSignature = makerEddsaSignature;
+
+
+            return (nftMakerOrder, makerEddsaSignature);
+        }
+
+        public static async Task RefreshTokenIfNeeded(ServiceManager serviceManager, Settings settings, System.Diagnostics.Stopwatch tokenRefreshStopwatch, bool appsettingsChanged = false)
+        {
+            if (tokenRefreshStopwatch.Elapsed >= TimeSpan.FromMinutes(5) || appsettingsChanged == true)
+            {
+                // Refresh the token every 5 minutes
+                try
+                {
+                    var newToken = await serviceManager.LoopExchangeApiService.LoginAsync(settings.LoopringAccountId, settings.LoopringAddress, settings.L1PrivateKey);
+                    serviceManager.LoopExchangeWebApiService.UpdateAuthorizationHeader(newToken.AccessToken);
+                }
+                catch (Exception ex)
+                {
+
+                }
+                // Reset the stopwatch
+                tokenRefreshStopwatch.Restart();
+            }
+        }
+
     }
 }

@@ -59,7 +59,7 @@ class Program
             }
 
             var selectedMode = OptionsHelper.ChooseMainMenuOptions("Welcome to LoopBot! Choose an option below to begin. Use arrow keys then press enter to select the mode.",
-                                                   new string[] { "Monitor collection", "Monitor listing", "Modify appsettings", "Exit" });
+                                                   new string[] { "Monitor collection", "Monitor listing", "Create listings","Modify appsettings", "Exit" });
 
             if (selectedMode == 0 && !cts.Token.IsCancellationRequested)
             {
@@ -75,7 +75,7 @@ class Program
 
                 do
                 {
-                    await RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch);
+                    await Utils.RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch);
 
                     var collectionModeStopwatch = System.Diagnostics.Stopwatch.StartNew();
                     nftIsBought = await CollectionMode(serviceManager, settings, collectionInfo.Id, priceToBuyDecimal);
@@ -108,7 +108,7 @@ class Program
 
                 do
                 {
-                    await RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch);
+                    await Utils.RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch);
 
                     var listingModeStopwatch = System.Diagnostics.Stopwatch.StartNew();
                     nftIsBought = await ListingMode(serviceManager, settings, nftFullId, priceToBuyDecimal);
@@ -129,12 +129,17 @@ class Program
                     }
                 } while (!nftIsBought && !cts.Token.IsCancellationRequested);
             }
-            else if(selectedMode == 2)
+            else if(selectedMode == 2 && !cts.Token.IsCancellationRequested)
             {
-                settings = SettingsHelper.ModifyAppSettingsFile();
-                await RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch, true);
+                await Utils.RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch);
+                await OptionsHelper.DisplayNftBalanceWithPagination(serviceManager, settings, tokenRefreshStopwatch);
             }
             else if (selectedMode == 3)
+            {
+                settings = SettingsHelper.ModifyAppSettingsFile();
+                await Utils.RefreshTokenIfNeeded(serviceManager, settings, tokenRefreshStopwatch, true);
+            }
+            else if (selectedMode == 4)
             {
                 exit = true;
 
@@ -146,24 +151,7 @@ class Program
     }
 
 
-    static async Task RefreshTokenIfNeeded(ServiceManager serviceManager, Settings settings, System.Diagnostics.Stopwatch tokenRefreshStopwatch, bool appsettingsChanged = false)
-    {
-        if (tokenRefreshStopwatch.Elapsed >= TimeSpan.FromMinutes(5) || appsettingsChanged == true)
-        {
-            // Refresh the token every 5 minutes
-            try
-            {
-                var newToken = await serviceManager.LoopExchangeApiService.LoginAsync(settings.LoopringAccountId, settings.LoopringAddress, settings.L1PrivateKey);
-                serviceManager.LoopExchangeWebApiService.UpdateAuthorizationHeader(newToken.AccessToken);
-            }
-            catch (Exception ex)
-            {
 
-            }
-            // Reset the stopwatch
-            tokenRefreshStopwatch.Restart();
-        }
-    }
 
 
     static async Task<bool> CollectionMode(ServiceManager serviceManager, Settings settings, int collectionId, decimal priceToBuyDecimal)
@@ -198,7 +186,7 @@ class Program
                 (NftOrder nftTakerOrder, string takerEddsaSignature, string message, string signedMessage) = await Utils.CreateAndSignNftTakerOrderAsync(settings, nftDetails, nftTakerListingDetails, nftListingDetails, orderFee, storageId, takerOrderFee);
 
                 //Submit the trade
-                var submitTrade = await loopExchangeWebApiService.SubmitTradeAsync(settings.LoopringAccountId, nftListingDetails.Id, nftTakerOrder, takerEddsaSignature, signedMessage);
+                var submitTrade = await loopExchangeWebApiService.SubmitTakerTradeAsync(settings.LoopringAccountId, nftListingDetails.Id, nftTakerOrder, takerEddsaSignature, signedMessage);
                 if (submitTrade != null && submitTrade.ToString() == "{}")
                 {
                     Console.WriteLine($"Bought NFT: '{nftDetails.Name}',at price: {nftItem.Token1PriceDecimal} LRC, successfully! Press any key to go back to the options!");
@@ -248,7 +236,7 @@ class Program
                 (NftOrder nftTakerOrder, string takerEddsaSignature, string message, string signedMessage) = await Utils.CreateAndSignNftTakerOrderAsync(settings, nftDetails, nftTakerListingDetails, nftListingDetails, orderFee, storageId, takerOrderFee);
 
                 //Submit the trade
-                var submitTrade = await loopExchangeWebApiService.SubmitTradeAsync(settings.LoopringAccountId, nftListingDetails.Id, nftTakerOrder, takerEddsaSignature, signedMessage);
+                var submitTrade = await loopExchangeWebApiService.SubmitTakerTradeAsync(settings.LoopringAccountId, nftListingDetails.Id, nftTakerOrder, takerEddsaSignature, signedMessage);
                 if (submitTrade != null && submitTrade.ToString() == "{}")
                 {
                     Console.WriteLine($"Bought NFT: '{nftDetails.Name}',at price: {listingPriceDecimal} LRC, successfully! Press any key to go back to the options!");
