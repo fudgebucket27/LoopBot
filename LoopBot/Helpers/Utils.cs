@@ -58,7 +58,7 @@ namespace LoopBot.Helpers
             }
         }
 
-        public static async Task<(NftOrder, string, string, string)> CreateAndSignNftTakerOrderAsync(
+        public static async Task<(NftTakerOrder, string, string, string)> CreateAndSignNftTakerOrderAsync(
             Settings settings,
             NftDetails nftDetails,
             TakerListingDetails nftTakerListingDetails,
@@ -71,7 +71,7 @@ namespace LoopBot.Helpers
             string nftData = nftTakerListingDetails.NftTokenData;
 
             // Creating the NFT taker order
-            NftOrder nftTakerOrder = new NftOrder()
+            NftTakerOrder nftTakerOrder = new NftTakerOrder()
             {
                 exchange = settings.Exchange,
                 accountId = settings.LoopringAccountId,
@@ -131,7 +131,7 @@ namespace LoopBot.Helpers
             return (nftTakerOrder, takerEddsaSignature, message, signedMessage);
         }
 
-        public static async Task<(NftOrder, string)> CreateAndSignNftMakerOrderAsync(
+        public static async Task<(NftMakerOrder, string)> CreateAndSignNftMakerOrderAsync(
          Settings settings,
          int nftTokenId,
          string nftData,
@@ -142,7 +142,7 @@ namespace LoopBot.Helpers
          )
         {
             // Creating the NFT maker order
-            NftOrder nftMakerOrder = new NftOrder()
+            NftMakerOrder nftMakerOrder = new NftMakerOrder()
             {
                 exchange = settings.Exchange,
                 accountId = settings.LoopringAccountId,
@@ -167,7 +167,7 @@ namespace LoopBot.Helpers
 
             int fillAmountBOrSValue2 = nftMakerOrder.fillAmountBOrS ? 1 : 0;
 
-            BigInteger[] poseidonTakerOrderInputs =
+            BigInteger[] poseidonMakerOrderInputs =
                     {
                 Utils.ParseHexUnsigned(settings.Exchange),
                 (BigInteger)nftMakerOrder.storageId,
@@ -184,15 +184,11 @@ namespace LoopBot.Helpers
 
             // Generate the Poseidon hash asynchronously
             Poseidon poseidon2 = new Poseidon(12, 6, 53, "poseidon", 5, _securityTarget: 128);
-            BigInteger takerOrderPoseidonHash = await Task.Run(() => poseidon2.CalculatePoseidonHash(poseidonTakerOrderInputs));
+            BigInteger takerOrderPoseidonHash = await Task.Run(() => poseidon2.CalculatePoseidonHash(poseidonMakerOrderInputs));
 
             // Generate the signatures asynchronously
             Eddsa eddsa2 = new Eddsa(takerOrderPoseidonHash, settings.LoopringPrivateKey);
             string makerEddsaSignature = await Task.Run(() => eddsa2.Sign());
-
-            nftMakerOrder.eddsaSignature = makerEddsaSignature;
-
-
             return (nftMakerOrder, makerEddsaSignature);
         }
 

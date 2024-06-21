@@ -114,7 +114,7 @@ namespace LoopBotTests
             Assert.IsTrue(takerOrderFee != null, $"Could not get taker order fee!");
             var storageId = await TestConfig.serviceManager.LoopringApiService.GetNextStorageId(TestConfig.settings.LoopringAccountId, 1);
             Assert.IsTrue(storageId != null, $"Could not get storage id!");
-            (NftOrder nftTakerOrder, string takerEddsaSignature, string message, string signedMessage) = await Utils.CreateAndSignNftTakerOrderAsync(TestConfig.settings, nftDetails, nftTakerListingDetails, nftListingDetails, orderFee, storageId, takerOrderFee);
+            (NftTakerOrder nftTakerOrder, string takerEddsaSignature, string message, string signedMessage) = await Utils.CreateAndSignNftTakerOrderAsync(TestConfig.settings, nftDetails, nftTakerListingDetails, nftListingDetails, orderFee, storageId, takerOrderFee);
             try
             {
                 var tradeValidation = await TestConfig.serviceManager.LoopringApiService.SubmitNftTradeValidateOrder(nftTakerOrder, takerEddsaSignature);

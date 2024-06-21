@@ -335,19 +335,25 @@ namespace LoopBot.Helpers
             var amountToSell = 1;
             var priceToSell = ChoosePriceToSellOption();
             var expirationInSeconds = ChooseExpirationOption();
-            foreach(var nft in markedNfts)
+            var innerValidUntil = 0;
+            foreach (var nft in markedNfts)
             {
                 try
                 {
+                    DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(expirationInSeconds);
+                    DateTimeOffset newDateTimeOffset = dateTimeOffset.AddDays(15).AddSeconds(-1).AddSeconds(innerValidUntil);
+                    long orderValidUntil = newDateTimeOffset.ToUnixTimeSeconds();
+                    innerValidUntil++;
                     Console.WriteLine($"Submitting listing for: {nft.Metadata.Base.Name}...");
                     var storageId = await serviceManager.LoopringApiService.GetNextStorageId(settings.LoopringAccountId, nft.TokenId);
-                    List<(NftOrder order, string eddsaSignature)> makerOrders = new List<(NftOrder, string)>();
+
+                    List<(NftMakerOrder order, string eddsaSignature)> makerOrders = new List<(NftMakerOrder, string)>();
                     for (int i = 0; i < amountToSell; i++)
                     {
                         var currentStorageID = storageId.orderId * 2;
                         var platformFee = 2;
                         var maxFeeBips = (nft.RoyaltyPercentage.Value + platformFee) * 100;
-                        var makerOrder = await Utils.CreateAndSignNftMakerOrderAsync(settings, nft.TokenId, nft.NftData, Utils.ConvertDecimalToStringRepresentation(priceToSell), currentStorageID, maxFeeBips, expirationInSeconds);
+                        var makerOrder = await Utils.CreateAndSignNftMakerOrderAsync(settings, nft.TokenId, nft.NftData, Utils.ConvertDecimalToStringRepresentation(priceToSell), currentStorageID, maxFeeBips, orderValidUntil);
                         makerOrders.Add(makerOrder);
                     }
                     var response = await serviceManager.LoopExchangeWebApiService.SubmitMakerTradeAsync(makerOrders, expirationInSeconds);
@@ -484,14 +490,20 @@ namespace LoopBot.Helpers
             {
                 Console.WriteLine("Submitting listing...");
                 var storageId = await serviceManager.LoopringApiService.GetNextStorageId(settings.LoopringAccountId, nft.TokenId);
-                List<(NftOrder order, string eddsaSignature)> makerOrders = new List<(NftOrder, string)>();
+                List<(NftMakerOrder order, string eddsaSignature)> makerOrders = new List<(NftMakerOrder, string)>();
+                var innerValidUntil = 0;
                 for (int i = 0; i < amountToSell; i++)
                 {
+                    DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(expirationInSeconds);
+                    DateTimeOffset newDateTimeOffset = dateTimeOffset.AddDays(15).AddSeconds(-1).AddSeconds(innerValidUntil);
+                    long orderValidUntil = newDateTimeOffset.ToUnixTimeSeconds();
+
                     var currentStorageID = storageId.orderId * 2;
                     var platformFee = 2;
                     var maxFeeBips = (nft.RoyaltyPercentage.Value + platformFee) * 100;
-                    var makerOrder = await Utils.CreateAndSignNftMakerOrderAsync(settings, nft.TokenId, nft.NftData, Utils.ConvertDecimalToStringRepresentation(priceToSell), currentStorageID, maxFeeBips, expirationInSeconds);
+                    var makerOrder = await Utils.CreateAndSignNftMakerOrderAsync(settings, nft.TokenId, nft.NftData, Utils.ConvertDecimalToStringRepresentation(priceToSell), currentStorageID, maxFeeBips, orderValidUntil);
                     makerOrders.Add(makerOrder);
+                    innerValidUntil++;
                 }
                 var response = await serviceManager.LoopExchangeWebApiService.SubmitMakerTradeAsync(makerOrders, expirationInSeconds);
                 if (response != null && response.Ids.Count > 0)

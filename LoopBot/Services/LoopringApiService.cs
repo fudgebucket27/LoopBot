@@ -73,7 +73,7 @@ namespace LoopBot.Services
             }
         }
 
-        public async Task<string?> SubmitNftTradeValidateOrder(NftOrder nftOrder, string eddsaSignature)
+        public async Task<string?> SubmitNftTradeValidateOrder(NftTakerOrder nftOrder, string eddsaSignature)
         {
             var request = new RestRequest("api/v3/nft/validateOrder");
             request.AlwaysMultipartFormData = true;
