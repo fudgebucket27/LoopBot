@@ -335,9 +335,9 @@ namespace LoopBot.Helpers
             var amountToSell = 1;
             var priceToSell = ChoosePriceToSellOption();
             var expirationInSeconds = ChooseExpirationOption();
-            try
+            foreach(var nft in markedNfts)
             {
-                foreach(var nft in markedNfts)
+                try
                 {
                     Console.WriteLine($"Submitting listing for: {nft.Metadata.Base.Name}...");
                     var storageId = await serviceManager.LoopringApiService.GetNextStorageId(settings.LoopringAccountId, nft.TokenId);
@@ -363,11 +363,12 @@ namespace LoopBot.Helpers
                         Console.WriteLine("Something went wrong! Try again...");
                     }
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Something went wrong! Try again...{ex.Message}");
+                }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Something went wrong! Try again...{ex.Message}");
-            }
+
             Console.WriteLine("Listing complete! Press 'q' to continue...");
             while (Console.ReadKey(true).Key != ConsoleKey.Q)
             {
