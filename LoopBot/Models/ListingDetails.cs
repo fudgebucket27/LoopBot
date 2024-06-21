@@ -36,4 +36,14 @@ namespace LoopBot.Models
         [JsonProperty("createdAt")]
         public DateTimeOffset CreatedAt { get; set; }
     }
+
+    public class ListingItems
+    {
+        [JsonProperty("count")]
+        public int Count { get; set; }
+
+        [JsonProperty("items")]
+        public List<ListingDetails> Items { get; set; }
+
+    }
 }

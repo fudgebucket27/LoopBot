@@ -95,6 +95,22 @@ namespace LoopBot.Services
             }
         }
 
+        public async Task<ListingItems?> GetNftListingsAsync(string nftUrlId)
+        {
+            var request = new RestRequest($"/listing/search-for-nft/{nftUrlId}");
+
+            var response = await _client.ExecuteGetAsync<ListingItems>(request);
+            if (response.IsSuccessful)
+            {
+                return response.Data;
+            }
+            else
+            {
+                throw new Exception($"Error getting NFT Listings from LoopExchange, HTTP Status Code:{response.StatusCode}, Content:{response.Content}");
+            }
+        }
+
+
         public async Task<object?> SubmitTakerTradeAsync(int accountId, string listingId, NftTakerOrder order, string takerOrderEddsaSignature, string signature)
         {
             var request = new RestRequest($"/taker/take-listing/{listingId}");
