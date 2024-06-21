@@ -296,6 +296,11 @@ namespace LoopBot.Helpers
                                 Console.Clear();
                                 await ShowNftMarkedOptions(markedNfts, serviceManager, settings);
                                 markedNfts.Clear();
+                                // Ensure redisplay of the main options after marking process
+                                Console.Clear();
+                                DisplayTopSection();
+                                DisplayNftList(nftBalance, offset, selectedIndex, markedNfts);
+                                DisplayNavigationOptions();
                             }
                             else
                             {
@@ -332,7 +337,7 @@ namespace LoopBot.Helpers
             {
                 foreach(var nft in markedNfts)
                 {
-                    Console.WriteLine($"\n\nSubmitting listing for: {nft.Metadata.Base.Name}...");
+                    Console.WriteLine($"Submitting listing for: {nft.Metadata.Base.Name}...");
                     var storageId = await serviceManager.LoopringApiService.GetNextStorageId(settings.LoopringAccountId, nft.TokenId);
                     List<(NftOrder order, string eddsaSignature)> makerOrders = new List<(NftOrder, string)>();
                     for (int i = 0; i < amountToSell; i++)
@@ -348,7 +353,7 @@ namespace LoopBot.Helpers
                     {
                         Console.WriteLine("Listing successful! Here is your listing link: ");
                         var listingLink = response.Ids.First();
-                        Console.WriteLine($"https://loopexchange.art/b/{listingLink}");
+                        Console.WriteLine($"https://loopexchange.art/b/{listingLink}\n");
 
                     }
                     else
@@ -361,10 +366,11 @@ namespace LoopBot.Helpers
             {
                 Console.WriteLine($"Something went wrong! Try again...{ex.Message}");
             }
-            Console.WriteLine("\nListing complete! Press 'q' to continue...");
+            Console.WriteLine("Listing complete! Press 'q' to continue...");
             while (Console.ReadKey(true).Key != ConsoleKey.Q)
             {
             }
+            Console.Clear();
         }
         private static void DisplayNftList(NftBalance nftBalance, int offset, int selectedIndex, List<Datum> markedNfts)
         {
