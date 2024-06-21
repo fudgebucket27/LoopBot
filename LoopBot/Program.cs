@@ -148,15 +148,7 @@ class Program
         cts.Dispose();
         Console.WriteLine("Exiting LoopBot in a few seconds...Goodbye!");
         await Task.Delay(TimeSpan.FromSeconds(2));
-    }
-
-
-
-
-
- 
-
-    
+    }  
 }
 
 
