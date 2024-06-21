@@ -3,8 +3,12 @@
 # What is this?
 A simple bot that is able to interface with various Loopring NFT marketplaces.
 
-# Demo
+# Demos
+## Collection/Listing Monitoring
 https://github.com/fudgebucket27/LoopBot/assets/5258063/461b90cd-1fd9-4282-a55d-355ef5d01e80
+
+## Mass Listing
+https://github.com/fudgebucket27/LoopBot/assets/5258063/d3ac47cc-e2e5-448d-94c4-a8aaf5d4ddd9
 
 # Features
 - Monitor a collection for new listings and buy an NFT under a certain price point
