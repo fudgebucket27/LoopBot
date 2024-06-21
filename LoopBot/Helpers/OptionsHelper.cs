@@ -390,12 +390,12 @@ namespace LoopBot.Helpers
                 if (i == selectedIndex)
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine($"> {i + 1 + offset}. {nft.Metadata.Base.Name} {(markedNfts.Any(m => m.Id == nft.Id) ? "[MARKED]" : "")}".PadRight(Console.WindowWidth));
+                    Console.WriteLine($"> {i + 1 + offset}. {nft.Metadata.Base.Name} {(markedNfts.Any(m => m.Id == nft.Id) ? "[MARKED]" : "")}");
                     Console.ResetColor();
                 }
                 else
                 {
-                    Console.WriteLine($"{i + 1 + offset}. {nft.Metadata.Base.Name} {(markedNfts.Any(m => m.Id == nft.Id) ? "[MARKED]" : "")}".PadRight(Console.WindowWidth));
+                    Console.WriteLine($"{i + 1 + offset}. {nft.Metadata.Base.Name} {(markedNfts.Any(m => m.Id == nft.Id) ? "[MARKED]" : "")}");
                 }
             }
         }
@@ -406,13 +406,13 @@ namespace LoopBot.Helpers
             {
                 Console.SetCursorPosition(0, previousIndex + 1); // Adjust 1 to match the number of lines before the NFT list
                 var previousNft = nftBalance.Data[previousIndex];
-                Console.WriteLine($"{previousIndex + 1 + offset}. {previousNft.Metadata.Base.Name} {(markedNfts.Any(m => m.Id == previousNft.Id) ? "[MARKED]" : "")}".PadRight(Console.WindowWidth)); // Extra spaces to overwrite previous text
+                Console.WriteLine($"{previousIndex + 1 + offset}. {previousNft.Metadata.Base.Name} {(markedNfts.Any(m => m.Id == previousNft.Id) ? "[MARKED]" : "")}"); // Extra spaces to overwrite previous text
             }
 
             Console.SetCursorPosition(0, selectedIndex + 1); // Adjust 1 to match the number of lines before the NFT list
             var selectedNft = nftBalance.Data[selectedIndex];
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"> {selectedIndex + 1 + offset}. {selectedNft.Metadata.Base.Name} {(markedNfts.Any(m => m.Id == selectedNft.Id) ? "[MARKED]" : "")}".PadRight(Console.WindowWidth)); // Extra spaces to overwrite previous text
+            Console.WriteLine($"> {selectedIndex + 1 + offset}. {selectedNft.Metadata.Base.Name} {(markedNfts.Any(m => m.Id == selectedNft.Id) ? "[MARKED]" : "")}"); // Extra spaces to overwrite previous text
             Console.ResetColor();
         }
 
@@ -443,12 +443,12 @@ namespace LoopBot.Helpers
                     if (i == selectedIndex)
                     {
                         Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.WriteLine($"> {options[i]}".PadRight(Console.WindowWidth)); // Clear the line
+                        Console.WriteLine($"> {options[i]}"); // Clear the line
                         Console.ResetColor();
                     }
                     else
                     {
-                        Console.WriteLine($"  {options[i]}".PadRight(Console.WindowWidth)); // Clear the line
+                        Console.WriteLine($"  {options[i]}"); // Clear the line
                     }
                 }
 
